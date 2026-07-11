@@ -9,6 +9,7 @@ import { signOut } from "@/app/actions/auth";
 import { joinProject } from "./actions";
 import { Header } from "@/components/layout/Header";
 import { card } from "@/lib/ui";
+import { ProjectCard } from "@/components/dashboard/ProjectCard";
 
 export function DashboardClient({
   userId,
@@ -72,7 +73,7 @@ export function DashboardClient({
             label="โครงการที่เข้าร่วมแล้ว"
             value={joinedRows.length}
           />
-          <StatCard label="เข้าร่วมสำเร็จ (เช็คชื่อแล้ว)" value={attendedCount} />
+          <StatCard label="ผ่านแล้ว" value={attendedCount} />
           <StatCard
             label="โครงการใหม่ที่ยังเปิดรับ"
             value={availableProjects.length}
@@ -84,36 +85,29 @@ export function DashboardClient({
           {availableProjects.length === 0 && (
             <p className="text-sm text-slate-500">ไม่มีโครงการใหม่ในขณะนี้</p>
           )}
-          <ul className="flex flex-col gap-3">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {availableProjects.map((project) => (
-              <li
+              <ProjectCard
                 key={project.id}
-                className="flex flex-col gap-3 rounded-xl border border-slate-100 p-4 sm:flex-row sm:items-center sm:justify-between"
-              >
-                <div className="flex flex-col gap-1">
-                  <p className="font-medium text-slate-900">{project.name}</p>
-                  {project.description && (
-                    <p className="text-sm text-slate-500">
-                      {project.description}
-                    </p>
-                  )}
-                  <p className="text-xs text-slate-400">
-                    {formatThaiDate(project.event_date)} ·{" "}
-                    {project.location ?? "ไม่ระบุสถานที่"}
-                    {project.duration ? ` · ${project.duration}` : ""}
-                  </p>
-                </div>
-                <form action={joinProject.bind(null, project.id)}>
-                  <button
-                    type="submit"
-                    className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700"
-                  >
-                    เข้าร่วม
-                  </button>
-                </form>
-              </li>
+                code={project.code}
+                name={project.name}
+                description={project.description}
+                eventDate={project.event_date}
+                location={project.location}
+                duration={project.duration}
+                footer={
+                  <form action={joinProject.bind(null, project.id)}>
+                    <button
+                      type="submit"
+                      className="w-full rounded-xl bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700"
+                    >
+                      เข้าร่วม
+                    </button>
+                  </form>
+                }
+              />
             ))}
-          </ul>
+          </div>
         </section>
 
         <section className={`${card} flex flex-col gap-3`}>
@@ -121,29 +115,26 @@ export function DashboardClient({
           {joinedRows.length === 0 && (
             <p className="text-sm text-slate-500">ยังไม่ได้เข้าร่วมโครงการใด</p>
           )}
-          <ul className="flex flex-col gap-3">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {joinedRows.map((row) => (
-              <li
+              <ProjectCard
                 key={row.project_id}
-                className="flex flex-col gap-3 rounded-xl border border-slate-100 p-4 sm:flex-row sm:items-center sm:justify-between"
-              >
-                <div className="flex flex-col gap-1">
-                  <p className="font-medium text-slate-900">
-                    {row.project?.name}
-                  </p>
-                  <p className="text-xs text-slate-400">
-                    {formatThaiDate(row.project?.event_date)} ·{" "}
-                    {row.project?.location ?? "ไม่ระบุสถานที่"}
-                  </p>
-                </div>
-                <span
-                  className={`w-fit rounded-full px-3 py-1 text-xs font-medium ${STATUS_STYLE[row.status] ?? "bg-slate-100 text-slate-600"}`}
-                >
-                  {STATUS_LABEL[row.status] ?? row.status}
-                </span>
-              </li>
+                code={row.project?.code ?? "-"}
+                name={row.project?.name ?? "-"}
+                description={row.project?.description}
+                eventDate={row.project?.event_date ?? ""}
+                location={row.project?.location}
+                duration={row.project?.duration}
+                footer={
+                  <span
+                    className={`w-fit rounded-full px-3 py-1 text-xs font-medium ${STATUS_STYLE[row.status] ?? "bg-slate-100 text-slate-600"}`}
+                  >
+                    {STATUS_LABEL[row.status] ?? row.status}
+                  </span>
+                }
+              />
             ))}
-          </ul>
+          </div>
         </section>
       </main>
     </>
@@ -152,7 +143,7 @@ export function DashboardClient({
 
 const STATUS_LABEL: Record<string, string> = {
   registered: "ลงทะเบียนแล้ว",
-  attended: "เช็คชื่อแล้ว",
+  attended: "ผ่านแล้ว",
   absent: "ขาดร่วมกิจกรรม",
 };
 
@@ -161,15 +152,6 @@ const STATUS_STYLE: Record<string, string> = {
   attended: "bg-green-50 text-green-700",
   absent: "bg-red-50 text-red-700",
 };
-
-function formatThaiDate(dateStr?: string) {
-  if (!dateStr) return "ไม่ระบุวันที่";
-  return new Date(dateStr).toLocaleDateString("th-TH", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
-}
 
 function StatCard({ label, value }: { label: string; value: number }) {
   return (
