@@ -15,6 +15,7 @@ export interface Student {
   id: string;
   student_code: string;
   full_name: string;
+  nickname: string | null;
   faculty_id: string;
   enrolled_year: number;
   created_at: string;

@@ -1,12 +1,6 @@
 import { updateParticipationStatus } from "../actions";
 import type { ParticipationStatus } from "@/types/database";
-
-interface ParticipationDetail {
-  id: string;
-  status: ParticipationStatus;
-  joined_at: string;
-  project: { id: string; code: string; name: string; event_date: string } | null;
-}
+import type { ParticipationDetail } from "@/lib/queries/admin-student-detail";
 
 const STATUS_OPTIONS: { value: ParticipationStatus; label: string }[] = [
   { value: "registered", label: "ลงทะเบียนแล้ว" },

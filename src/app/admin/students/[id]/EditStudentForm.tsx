@@ -3,15 +3,8 @@
 import { useActionState } from "react";
 import { updateStudentProfile } from "../actions";
 import type { Faculty } from "@/types/database";
+import type { StudentDetail } from "@/lib/queries/admin-student-detail";
 import { buttonPrimary, card, input, label } from "@/lib/ui";
-
-interface StudentDetail {
-  id: string;
-  student_code: string;
-  full_name: string;
-  faculty_id: string;
-  enrolled_year: number;
-}
 
 export function EditStudentForm({
   studentId,
@@ -29,7 +22,11 @@ export function EditStudentForm({
   );
 
   return (
-    <form action={formAction} className={`${card} flex flex-col gap-4`}>
+    <form
+      action={formAction}
+      key={`${student.full_name}-${student.nickname}-${student.faculty_id}-${student.enrolled_year}`}
+      className={`${card} flex flex-col gap-4`}
+    >
       <h2 className="font-semibold text-slate-900">ข้อมูลนิสิต</h2>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -51,6 +48,18 @@ export function EditStudentForm({
             name="full_name"
             defaultValue={student.full_name}
             required
+            className={input}
+          />
+        </div>
+
+        <div className="flex flex-col gap-1">
+          <label htmlFor="nickname" className={label}>
+            ชื่อเล่น
+          </label>
+          <input
+            id="nickname"
+            name="nickname"
+            defaultValue={student.nickname ?? ""}
             className={input}
           />
         </div>

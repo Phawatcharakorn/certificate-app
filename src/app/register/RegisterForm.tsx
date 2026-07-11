@@ -28,6 +28,13 @@ export function RegisterForm({ faculties }: { faculties: Faculty[] }) {
       </div>
 
       <div className="flex flex-col gap-1">
+        <label htmlFor="nickname" className={label}>
+          ชื่อเล่น
+        </label>
+        <input id="nickname" name="nickname" required className={input} />
+      </div>
+
+      <div className="flex flex-col gap-1">
         <label htmlFor="faculty_id" className={label}>
           คณะ
         </label>

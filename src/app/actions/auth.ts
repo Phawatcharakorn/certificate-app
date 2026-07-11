@@ -14,6 +14,7 @@ export async function registerStudent(
   const password = String(formData.get("password") ?? "");
   const studentCode = String(formData.get("student_code") ?? "");
   const fullName = String(formData.get("full_name") ?? "");
+  const nickname = String(formData.get("nickname") ?? "");
   const facultyId = String(formData.get("faculty_id") ?? "");
   const enrolledYear = Number(formData.get("enrolled_year"));
 
@@ -49,6 +50,7 @@ export async function registerStudent(
     id: signUpData.user.id,
     student_code: studentCode,
     full_name: fullName,
+    nickname,
     faculty_id: facultyId,
     enrolled_year: enrolledYear,
   });

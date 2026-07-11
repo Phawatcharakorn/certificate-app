@@ -36,7 +36,7 @@ export function DashboardClient({
     queryKey,
   );
 
-  const { fullName, joinedRows, availableProjects } = data;
+  const { fullName, nickname, joinedRows, availableProjects } = data;
 
   const attendedCount = joinedRows.filter(
     (row) => row.status === "attended",
@@ -61,7 +61,7 @@ export function DashboardClient({
       <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-6 p-6 sm:p-8">
         <section className={`${card} anim-fade-in flex flex-col gap-1`}>
           <h1 className="text-xl font-semibold text-slate-900">
-            สวัสดี, {fullName ?? "นิสิต"} 👋
+            สวัสดี, {nickname ?? fullName ?? "นิสิต"} 👋
           </h1>
           <p className="text-sm text-slate-500">
             ติดตามโครงการที่เข้าร่วมและสะสมกิจกรรมเพื่อรับใบ Certificate ได้ที่นี่
