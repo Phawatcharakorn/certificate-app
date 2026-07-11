@@ -59,7 +59,7 @@ export function DashboardClient({
         }
       />
       <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-6 p-6 sm:p-8">
-        <section className={`${card} flex flex-col gap-1`}>
+        <section className={`${card} anim-fade-in flex flex-col gap-1`}>
           <h1 className="text-xl font-semibold text-slate-900">
             สวัสดี, {fullName ?? "นิสิต"} 👋
           </h1>
@@ -72,11 +72,17 @@ export function DashboardClient({
           <StatCard
             label="โครงการที่เข้าร่วมแล้ว"
             value={joinedRows.length}
+            delay="anim-delay-1"
           />
-          <StatCard label="ผ่านแล้ว" value={attendedCount} />
+          <StatCard
+            label="ผ่านแล้ว"
+            value={attendedCount}
+            delay="anim-delay-2"
+          />
           <StatCard
             label="โครงการใหม่ที่ยังเปิดรับ"
             value={availableProjects.length}
+            delay="anim-delay-3"
           />
         </section>
 
@@ -87,25 +93,26 @@ export function DashboardClient({
           )}
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {availableProjects.map((project) => (
-              <ProjectCard
-                key={project.id}
-                code={project.code}
-                name={project.name}
-                description={project.description}
-                eventDate={project.event_date}
-                location={project.location}
-                duration={project.duration}
-                footer={
-                  <form action={joinProject.bind(null, project.id)}>
-                    <button
-                      type="submit"
-                      className="w-full rounded-xl bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700"
-                    >
-                      เข้าร่วม
-                    </button>
-                  </form>
-                }
-              />
+              <div key={project.id} className="stagger-card">
+                <ProjectCard
+                  code={project.code}
+                  name={project.name}
+                  description={project.description}
+                  eventDate={project.event_date}
+                  location={project.location}
+                  duration={project.duration}
+                  footer={
+                    <form action={joinProject.bind(null, project.id)}>
+                      <button
+                        type="submit"
+                        className="w-full rounded-xl bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700"
+                      >
+                        เข้าร่วม
+                      </button>
+                    </form>
+                  }
+                />
+              </div>
             ))}
           </div>
         </section>
@@ -117,22 +124,23 @@ export function DashboardClient({
           )}
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {joinedRows.map((row) => (
-              <ProjectCard
-                key={row.project_id}
-                code={row.project?.code ?? "-"}
-                name={row.project?.name ?? "-"}
-                description={row.project?.description}
-                eventDate={row.project?.event_date ?? ""}
-                location={row.project?.location}
-                duration={row.project?.duration}
-                footer={
-                  <span
-                    className={`w-fit rounded-full px-3 py-1 text-xs font-medium ${STATUS_STYLE[row.status] ?? "bg-slate-100 text-slate-600"}`}
-                  >
-                    {STATUS_LABEL[row.status] ?? row.status}
-                  </span>
-                }
-              />
+              <div key={row.project_id} className="stagger-card">
+                <ProjectCard
+                  code={row.project?.code ?? "-"}
+                  name={row.project?.name ?? "-"}
+                  description={row.project?.description}
+                  eventDate={row.project?.event_date ?? ""}
+                  location={row.project?.location}
+                  duration={row.project?.duration}
+                  footer={
+                    <span
+                      className={`w-fit rounded-full px-3 py-1 text-xs font-medium ${STATUS_STYLE[row.status] ?? "bg-slate-100 text-slate-600"}`}
+                    >
+                      {STATUS_LABEL[row.status] ?? row.status}
+                    </span>
+                  }
+                />
+              </div>
             ))}
           </div>
         </section>
@@ -153,9 +161,17 @@ const STATUS_STYLE: Record<string, string> = {
   absent: "bg-red-50 text-red-700",
 };
 
-function StatCard({ label, value }: { label: string; value: number }) {
+function StatCard({
+  label,
+  value,
+  delay,
+}: {
+  label: string;
+  value: number;
+  delay?: string;
+}) {
   return (
-    <div className={`${card} flex flex-col gap-1`}>
+    <div className={`${card} anim-slide-up ${delay ?? ""} flex flex-col gap-1`}>
       <span className="text-3xl font-semibold text-blue-700">{value}</span>
       <span className="text-sm text-slate-500">{label}</span>
     </div>

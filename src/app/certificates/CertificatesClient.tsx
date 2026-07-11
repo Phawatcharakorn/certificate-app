@@ -64,7 +64,10 @@ export function CertificatesClient({
 
         <ul className="flex flex-col gap-4">
           {progress.map((item) => (
-            <li key={item.certificateTypeId} className={card}>
+            <li
+              key={item.certificateTypeId}
+              className={`${card} stagger-card`}
+            >
               <div className="flex items-center justify-between">
                 <p className="font-medium text-slate-900">{item.name}</p>
                 <span className="text-sm text-slate-500">

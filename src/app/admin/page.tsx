@@ -40,14 +40,14 @@ export default async function AdminOverviewPage() {
             <Link
               key={item.href}
               href={item.href}
-              className={`${card} font-medium text-slate-700 transition hover:border-blue-200 hover:text-blue-700`}
+              className={`${card} stagger-card font-medium text-slate-700 transition hover:border-blue-200 hover:text-blue-700`}
             >
               {item.label}
             </Link>
           ))}
           <a
             href="/api/admin/export/projects"
-            className={`${card} font-medium text-slate-700 transition hover:border-blue-200 hover:text-blue-700`}
+            className={`${card} stagger-card font-medium text-slate-700 transition hover:border-blue-200 hover:text-blue-700`}
           >
             Export โครงการทั้งหมด (Excel)
           </a>

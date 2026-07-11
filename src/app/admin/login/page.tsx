@@ -8,7 +8,7 @@ export default function AdminLoginPage() {
     <>
       <Header subtitle="เข้าสู่ระบบสำหรับผู้ดูแลระบบ" />
       <main className="flex flex-1 flex-col items-center justify-center gap-4 p-8">
-        <div className={`${card} w-full max-w-sm`}>
+        <div className={`${card} anim-slide-up w-full max-w-sm`}>
           <h1 className="mb-6 text-center text-xl font-semibold text-slate-900">
             เข้าสู่ระบบแอดมิน
           </h1>

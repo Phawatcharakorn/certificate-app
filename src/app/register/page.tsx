@@ -40,7 +40,7 @@ export default async function RegisterPage() {
     <>
       <Header />
       <main className="flex flex-1 items-center justify-center p-8">
-        <div className={`${card} w-full max-w-md`}>
+        <div className={`${card} anim-slide-up w-full max-w-md`}>
           <h1 className="mb-6 text-center text-xl font-semibold text-slate-900">
             ลงทะเบียนนิสิต
           </h1>

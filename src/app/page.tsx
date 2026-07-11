@@ -19,7 +19,9 @@ export default async function Home() {
     <>
       <Header />
       <main className="flex flex-1 flex-col items-center justify-center gap-8 p-8 text-center">
-        <div className={`${card} flex max-w-lg flex-col gap-6 text-center`}>
+        <div
+          className={`${card} anim-pop-in flex max-w-lg flex-col gap-6 text-center`}
+        >
           <div className="flex flex-col gap-2">
             <h1 className="text-2xl font-semibold text-slate-900">
               ระบบให้รางวัล Certificate นิสิต

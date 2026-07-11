@@ -17,3 +17,65 @@ body {
   color: var(--foreground);
   font-family: var(--font-sans), Arial, Helvetica, sans-serif;
 }
+
+/* ── Entrance animation system ───────────────────────────────────────────── */
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes popIn {
+  0%   { opacity: 0; transform: scale(0.92); }
+  100% { opacity: 1; transform: scale(1); }
+}
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.anim-slide-up { animation: slideUp 0.45s cubic-bezier(0.16,1,0.3,1) both; }
+.anim-fade-in  { animation: fadeIn  0.35s ease both; }
+.anim-pop-in   { animation: popIn   0.4s  cubic-bezier(0.16,1,0.3,1) both; }
+.anim-delay-1  { animation-delay: 0.08s; }
+.anim-delay-2  { animation-delay: 0.16s; }
+.anim-delay-3  { animation-delay: 0.24s; }
+.anim-delay-4  { animation-delay: 0.32s; }
+
+/* Card grid entrance — staggered for the first 10 items only, so a grid
+   with dozens of cards doesn't animate all at once (that compounding is
+   what causes jank, not any single animation). */
+.stagger-card { animation: fadeInUp 0.30s ease both; }
+.stagger-card:nth-child(1)  { animation-delay: 0.04s; }
+.stagger-card:nth-child(2)  { animation-delay: 0.08s; }
+.stagger-card:nth-child(3)  { animation-delay: 0.12s; }
+.stagger-card:nth-child(4)  { animation-delay: 0.16s; }
+.stagger-card:nth-child(5)  { animation-delay: 0.20s; }
+.stagger-card:nth-child(6)  { animation-delay: 0.24s; }
+.stagger-card:nth-child(7)  { animation-delay: 0.28s; }
+.stagger-card:nth-child(8)  { animation-delay: 0.32s; }
+.stagger-card:nth-child(9)  { animation-delay: 0.36s; }
+.stagger-card:nth-child(10) { animation-delay: 0.40s; }
+.stagger-card:nth-child(n+11) { animation: none; }
+
+/* Button hover lift — transform-only so it stays compositor-only (GPU) and
+   smooth even with many buttons on screen at once (e.g. an admin table). */
+button {
+  transition: transform 0.15s ease;
+}
+button:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+button:active:not(:disabled) {
+  transform: translateY(0) scale(0.98) !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
