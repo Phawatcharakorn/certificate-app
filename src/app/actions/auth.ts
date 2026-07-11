@@ -27,6 +27,7 @@ export async function registerStudent(
     .eq("is_active", true)
     .lte("open_date", today)
     .gte("close_date", today)
+    .limit(1)
     .maybeSingle();
 
   if (!period) {
@@ -39,6 +40,17 @@ export async function registerStudent(
 
   if (signUpError || !signUpData.user) {
     return { error: signUpError?.message ?? "สมัครสมาชิกไม่สำเร็จ" };
+  }
+
+  // Supabase returns a "success" response with an empty identities array
+  // (instead of an error) when the email is already registered — an
+  // anti-enumeration measure so callers can't probe which emails exist.
+  // The user.id in that response doesn't correspond to a real auth.users
+  // row, so inserting into students with it would violate the FK constraint.
+  if (signUpData.user.identities?.length === 0) {
+    return {
+      error: "อีเมลนี้ถูกใช้สมัครสมาชิกไปแล้ว กรุณาใช้อีเมลอื่น หรือเข้าสู่ระบบด้วยอีเมลนี้แทน",
+    };
   }
 
   // signUp() may not return an active session yet (e.g. email confirmation

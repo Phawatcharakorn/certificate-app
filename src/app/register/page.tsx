@@ -14,6 +14,7 @@ export default async function RegisterPage() {
     .eq("is_active", true)
     .lte("open_date", today)
     .gte("close_date", today)
+    .limit(1)
     .maybeSingle();
 
   if (!period) {

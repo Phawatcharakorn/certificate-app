@@ -31,6 +31,7 @@ export default async function Home() {
         .eq("is_active", true)
         .lte("open_date", today)
         .gte("close_date", today)
+        .limit(1)
         .maybeSingle(),
       supabase.from("projects").select("id", { count: "exact", head: true }),
       supabase
