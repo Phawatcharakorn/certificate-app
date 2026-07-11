@@ -51,7 +51,7 @@ export function ProjectCard({
   footer?: ReactNode;
 }) {
   return (
-    <div className="flex flex-col overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm shadow-slate-200/60">
+    <div className="flex h-full flex-col overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm shadow-slate-200/60">
       <div
         className={`flex h-28 items-center justify-center bg-gradient-to-br ${bannerGradient(code)} text-white`}
       >
