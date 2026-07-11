@@ -49,6 +49,7 @@ export interface Project {
   responsible_person: string | null;
   organizer_office: string;
   target_faculty_mode: TargetFacultyMode;
+  capacity: number | null;
   created_at: string;
 }
 

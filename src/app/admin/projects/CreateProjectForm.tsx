@@ -54,6 +54,20 @@ export function CreateProjectForm({ faculties }: { faculties: Faculty[] }) {
         />
       </div>
 
+      <div className="flex flex-col gap-1 rounded-xl border-2 border-red-200 bg-red-50 p-3">
+        <label htmlFor="capacity" className="text-sm font-semibold text-red-700">
+          จำกัดจำนวนที่นั่ง (เว้นว่างไว้ = ไม่จำกัด)
+        </label>
+        <input
+          id="capacity"
+          name="capacity"
+          type="number"
+          min={1}
+          placeholder="เช่น 30"
+          className="w-full rounded-xl border border-red-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition-all duration-200 focus:border-transparent focus:ring-2 focus:ring-red-400"
+        />
+      </div>
+
       <div className="flex flex-col gap-1">
         <label htmlFor="location" className={label}>
           สถานที่

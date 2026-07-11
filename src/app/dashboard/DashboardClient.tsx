@@ -6,7 +6,7 @@ import { createClient } from "@/lib/supabase/client";
 import { fetchDashboardData, type DashboardData } from "@/lib/queries/dashboard";
 import { useRealtimeInvalidate } from "@/hooks/useRealtimeInvalidate";
 import { signOut } from "@/app/actions/auth";
-import { joinProject } from "./actions";
+import { cancelParticipation, joinProject } from "./actions";
 import { Header } from "@/components/layout/Header";
 import { card } from "@/lib/ui";
 import { ProjectCard } from "@/components/dashboard/ProjectCard";
@@ -101,15 +101,28 @@ export function DashboardClient({
                   eventDate={project.event_date}
                   location={project.location}
                   duration={project.duration}
+                  capacity={project.capacity}
+                  joinedCount={project.participantCount}
                   footer={
-                    <form action={joinProject.bind(null, project.id)}>
+                    project.capacity !== null &&
+                    project.participantCount >= project.capacity ? (
                       <button
-                        type="submit"
-                        className="w-full rounded-xl bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700"
+                        type="button"
+                        disabled
+                        className="w-full cursor-not-allowed rounded-xl bg-slate-200 px-4 py-2 text-sm font-medium text-slate-500"
                       >
-                        เข้าร่วม
+                        เต็มแล้ว
                       </button>
-                    </form>
+                    ) : (
+                      <form action={joinProject.bind(null, project.id)}>
+                        <button
+                          type="submit"
+                          className="w-full rounded-xl bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700"
+                        >
+                          เข้าร่วม
+                        </button>
+                      </form>
+                    )
                   }
                 />
               </div>
@@ -133,11 +146,23 @@ export function DashboardClient({
                   location={row.project?.location}
                   duration={row.project?.duration}
                   footer={
-                    <span
-                      className={`w-fit rounded-full px-3 py-1 text-xs font-medium ${STATUS_STYLE[row.status] ?? "bg-slate-100 text-slate-600"}`}
-                    >
-                      {STATUS_LABEL[row.status] ?? row.status}
-                    </span>
+                    <div className="flex flex-col gap-2">
+                      <span
+                        className={`w-fit rounded-full px-3 py-1 text-xs font-medium ${STATUS_STYLE[row.status] ?? "bg-slate-100 text-slate-600"}`}
+                      >
+                        {STATUS_LABEL[row.status] ?? row.status}
+                      </span>
+                      {row.status === "registered" && (
+                        <form action={cancelParticipation.bind(null, row.id)}>
+                          <button
+                            type="submit"
+                            className="w-full rounded-xl border border-red-200 px-4 py-2 text-sm font-medium text-red-600 transition hover:bg-red-50"
+                          >
+                            ยกเลิกลงทะเบียน
+                          </button>
+                        </form>
+                      )}
+                    </div>
                   }
                 />
               </div>

@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { Header } from "@/components/layout/Header";
 import { buttonPrimary, buttonSecondary, card } from "@/lib/ui";
 import { ProjectCard } from "@/components/dashboard/ProjectCard";
+import { fetchPublicProjects } from "@/lib/queries/public-projects";
 
 const STEPS = [
   {
@@ -23,7 +24,7 @@ export default async function Home() {
   const supabase = await createClient();
   const today = new Date().toISOString().slice(0, 10);
 
-  const [{ data: period }, { count: projectCount }, { count: certTypeCount }, { data: faculties }, { data: upcomingProjects }] =
+  const [{ data: period }, { count: projectCount }, { count: certTypeCount }, { data: faculties }, upcomingProjects] =
     await Promise.all([
       supabase
         .from("registration_periods")
@@ -38,12 +39,7 @@ export default async function Home() {
         .from("certificate_types")
         .select("id", { count: "exact", head: true }),
       supabase.from("faculties").select("id"),
-      supabase
-        .from("projects")
-        .select("id, code, name, description, event_date, location, duration")
-        .gte("event_date", today)
-        .order("event_date", { ascending: true })
-        .limit(3),
+      fetchPublicProjects(supabase, { upcomingOnly: true, limit: 3 }),
     ]);
 
   return (
@@ -119,7 +115,7 @@ export default async function Home() {
           </div>
         </section>
 
-        {upcomingProjects && upcomingProjects.length > 0 && (
+        {upcomingProjects.length > 0 && (
           <section className={`${card} flex flex-col gap-4`}>
             <h2 className="font-semibold text-slate-900">โครงการที่กำลังจะจัดขึ้น</h2>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -132,10 +128,18 @@ export default async function Home() {
                     eventDate={project.event_date}
                     location={project.location}
                     duration={project.duration}
+                    capacity={project.capacity}
+                    joinedCount={project.participantCount}
                   />
                 </div>
               ))}
             </div>
+            <Link
+              href="/projects"
+              className={`${buttonSecondary} mx-auto`}
+            >
+              ดูโครงการที่เปิดทั้งหมด
+            </Link>
           </section>
         )}
       </main>

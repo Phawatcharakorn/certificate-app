@@ -20,6 +20,8 @@ export async function createProject(
   const duration = String(formData.get("duration") ?? "");
   const responsiblePerson = String(formData.get("responsible_person") ?? "");
   const organizerOffice = String(formData.get("organizer_office") ?? "");
+  const capacityRaw = String(formData.get("capacity") ?? "");
+  const capacity = capacityRaw ? Number(capacityRaw) : null;
   const targetFacultyMode = String(
     formData.get("target_faculty_mode") ?? "all",
   ) as TargetFacultyMode;
@@ -45,6 +47,7 @@ export async function createProject(
       responsible_person: responsiblePerson || null,
       ...(organizerOffice ? { organizer_office: organizerOffice } : {}),
       target_faculty_mode: targetFacultyMode,
+      capacity,
     })
     .select("id")
     .single();

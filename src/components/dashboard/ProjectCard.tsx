@@ -40,6 +40,8 @@ export function ProjectCard({
   eventDate,
   location,
   duration,
+  capacity,
+  joinedCount,
   footer,
 }: {
   code: string;
@@ -48,16 +50,31 @@ export function ProjectCard({
   eventDate: string;
   location?: string | null;
   duration?: string | null;
+  capacity?: number | null;
+  joinedCount?: number;
   footer?: ReactNode;
 }) {
+  const hasCapacity = capacity !== null && capacity !== undefined;
+  const remaining = hasCapacity ? capacity - (joinedCount ?? 0) : null;
+  const isFull = hasCapacity && remaining !== null && remaining <= 0;
+
   return (
     <div className="flex h-full flex-col overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm shadow-slate-200/60">
       <div
-        className={`flex h-28 items-center justify-center bg-gradient-to-br ${bannerGradient(code)} text-white`}
+        className={`relative flex h-28 items-center justify-center bg-gradient-to-br ${bannerGradient(code)} text-white`}
       >
         <span className="text-2xl font-bold tracking-wide opacity-90">
           {code}
         </span>
+        {hasCapacity && (
+          <span
+            className={`absolute right-2 top-2 rounded-full bg-red-600 px-2.5 py-1 text-xs font-semibold text-white shadow-sm ${
+              isFull ? "" : "animate-pulse"
+            }`}
+          >
+            {isFull ? "เต็มแล้ว" : `เหลือ ${remaining} ที่`}
+          </span>
+        )}
       </div>
       <div className="flex flex-1 flex-col gap-2 p-4">
         <h3 className="line-clamp-2 font-semibold text-slate-900">{name}</h3>
@@ -68,6 +85,11 @@ export function ProjectCard({
           <Chip>{formatThaiDate(eventDate)}</Chip>
           <Chip>{location ?? "ไม่ระบุสถานที่"}</Chip>
           {duration && <Chip>{duration}</Chip>}
+          {hasCapacity && (
+            <span className="rounded-full bg-red-50 px-2.5 py-1 text-xs font-medium text-red-600">
+              จำกัด {capacity} ที่นั่ง
+            </span>
+          )}
         </div>
         <div className="mt-auto pt-3">{footer}</div>
       </div>

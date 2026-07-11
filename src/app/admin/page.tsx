@@ -3,13 +3,60 @@ import { requireAdmin } from "@/lib/supabase/require-admin";
 import { signOut } from "@/app/actions/auth";
 import { Header } from "@/components/layout/Header";
 import { card } from "@/lib/ui";
+import { NavIcon } from "@/components/admin/NavIcon";
 
-const NAV_ITEMS = [
-  { href: "/admin/students", label: "จัดการนิสิต" },
-  { href: "/admin/projects", label: "จัดการโครงการ" },
-  { href: "/admin/certificate-rules", label: "จัดการเกณฑ์ใบเซอร์" },
-  { href: "/admin/requests", label: "คิวคำร้องขอใบเซอร์" },
-  { href: "/admin/settings", label: "ตั้งค่าระบบ" },
+const SECTIONS = [
+  {
+    title: "จัดการข้อมูล",
+    items: [
+      {
+        href: "/admin/students",
+        icon: "students" as const,
+        label: "จัดการนิสิต",
+        description: "ดูรายชื่อนิสิต แก้ไขข้อมูล และอัปเดตสถานะเข้าร่วมกิจกรรม",
+      },
+      {
+        href: "/admin/projects",
+        icon: "projects" as const,
+        label: "จัดการโครงการ",
+        description: "สร้าง/แก้ไขโครงการกิจกรรม กำหนดคณะและจำนวนที่นั่ง",
+      },
+      {
+        href: "/admin/certificate-rules",
+        icon: "certificate" as const,
+        label: "จัดการเกณฑ์ใบเซอร์",
+        description: "กำหนดโครงการที่ต้องเข้าครบเพื่อรับใบ Certificate แต่ละแบบ",
+      },
+    ],
+  },
+  {
+    title: "การดำเนินการ",
+    items: [
+      {
+        href: "/admin/requests",
+        icon: "inbox" as const,
+        label: "คิวคำร้องขอใบเซอร์",
+        description: "อนุมัติ ปฏิเสธ และสร้างไฟล์ใบเซอร์ให้นิสิตที่ยื่นคำร้อง",
+      },
+      {
+        href: "/api/admin/export/projects",
+        icon: "download" as const,
+        label: "Export โครงการทั้งหมด (Excel)",
+        description: "ดาวน์โหลดรายชื่อผู้เข้าร่วมทุกโครงการเป็นไฟล์ Excel",
+      },
+    ],
+  },
+  {
+    title: "ระบบ",
+    items: [
+      {
+        href: "/admin/settings",
+        icon: "settings" as const,
+        label: "ตั้งค่าระบบ",
+        description: "กำหนดช่วงเวลาเปิดรับสมัคร และเทมเพลตใบเซอร์",
+      },
+    ],
+  },
 ];
 
 export default async function AdminOverviewPage() {
@@ -31,28 +78,37 @@ export default async function AdminOverviewPage() {
           </>
         }
       />
-      <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-6 p-6 sm:p-8">
+      <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-8 p-6 sm:p-8">
         <h1 className="text-xl font-semibold text-slate-900">
           ภาพรวมโครงการ (Admin)
         </h1>
 
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          {NAV_ITEMS.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={`${card} stagger-card font-medium text-slate-700 transition hover:border-blue-200 hover:text-blue-700`}
-            >
-              {item.label}
-            </Link>
-          ))}
-          <a
-            href="/api/admin/export/projects"
-            className={`${card} stagger-card font-medium text-slate-700 transition hover:border-blue-200 hover:text-blue-700`}
-          >
-            Export โครงการทั้งหมด (Excel)
-          </a>
-        </div>
+        {SECTIONS.map((section) => (
+          <section key={section.title} className="flex flex-col gap-3">
+            <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-400">
+              {section.title}
+            </h2>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              {section.items.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={`${card} stagger-card flex items-start gap-3 transition hover:border-blue-200`}
+                >
+                  <NavIcon name={item.icon} />
+                  <div className="flex flex-col gap-1">
+                    <span className="font-medium text-slate-700">
+                      {item.label}
+                    </span>
+                    <span className="text-xs text-slate-500">
+                      {item.description}
+                    </span>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </section>
+        ))}
       </main>
     </>
   );

@@ -3,9 +3,11 @@ import type { Project } from "@/types/database";
 
 export interface ProjectWithFaculties extends Project {
   project_faculties: { faculty_id: string }[];
+  participantCount: number;
 }
 
 export interface ParticipationRow {
+  id: string;
   project_id: string;
   status: string;
   joined_at: string;
@@ -31,27 +33,42 @@ export async function fetchDashboardData(
 
   const { data: participations } = await supabase
     .from("participations")
-    .select("project_id, status, joined_at, project:projects(*)")
+    .select("id, project_id, status, joined_at, project:projects(*)")
     .eq("student_id", userId)
     .order("joined_at", { ascending: false });
 
   const joinedRows = (participations as unknown as ParticipationRow[]) ?? [];
   const joinedProjectIds = new Set(joinedRows.map((row) => row.project_id));
 
-  const { data: allProjects } = await supabase
-    .from("projects")
-    .select("*, project_faculties(faculty_id)")
-    .order("event_date", { ascending: true });
+  const [{ data: allProjects }, { data: counts }] = await Promise.all([
+    supabase
+      .from("projects")
+      .select("*, project_faculties(faculty_id)")
+      .order("event_date", { ascending: true }),
+    supabase.from("project_participant_counts").select("project_id, participant_count"),
+  ]);
+
+  const countByProject = new Map<string, number>(
+    (counts ?? []).map((row) => [
+      row.project_id as string,
+      row.participant_count as number,
+    ]),
+  );
 
   const availableProjects = (
     (allProjects as unknown as ProjectWithFaculties[]) ?? []
-  ).filter((project) => {
-    if (joinedProjectIds.has(project.id)) return false;
-    if (project.target_faculty_mode === "all") return true;
-    return project.project_faculties.some(
-      (pf) => pf.faculty_id === student?.faculty_id,
-    );
-  });
+  )
+    .filter((project) => {
+      if (joinedProjectIds.has(project.id)) return false;
+      if (project.target_faculty_mode === "all") return true;
+      return project.project_faculties.some(
+        (pf) => pf.faculty_id === student?.faculty_id,
+      );
+    })
+    .map((project) => ({
+      ...project,
+      participantCount: countByProject.get(project.id) ?? 0,
+    }));
 
   return {
     fullName: student?.full_name ?? null,
