@@ -48,7 +48,7 @@ export function ProjectCard({
   eventDate: string;
   location?: string | null;
   duration?: string | null;
-  footer: ReactNode;
+  footer?: ReactNode;
 }) {
   return (
     <div className="flex flex-col overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm shadow-slate-200/60">

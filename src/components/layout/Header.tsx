@@ -12,7 +12,7 @@ export function Header({
 }) {
   return (
     <header
-      className="flex items-center justify-between gap-4 px-4 py-3 text-white shadow-sm sm:px-6"
+      className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 px-4 py-3 text-white shadow-sm sm:flex-nowrap sm:px-6"
       style={{ background: "linear-gradient(135deg, #0d2f6e 0%, #1565c0 100%)" }}
     >
       <Link href="/" className="flex min-w-0 items-center gap-3">
@@ -30,7 +30,7 @@ export function Header({
         </div>
       </Link>
       {right && (
-        <div className="flex shrink-0 items-center gap-4 text-sm text-blue-50">
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-blue-50 sm:gap-x-4 sm:text-sm">
           {right}
         </div>
       )}

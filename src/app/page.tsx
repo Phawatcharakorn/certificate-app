@@ -2,26 +2,54 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { Header } from "@/components/layout/Header";
 import { buttonPrimary, buttonSecondary, card } from "@/lib/ui";
+import { ProjectCard } from "@/components/dashboard/ProjectCard";
+
+const STEPS = [
+  {
+    title: "1. สมัครสมาชิก",
+    description: "ลงทะเบียนด้วยรหัสนิสิตและอีเมล ใช้เวลาไม่ถึงนาที",
+  },
+  {
+    title: "2. เข้าร่วมโครงการ",
+    description: "เลือกโครงการกิจกรรมที่เปิดรับ แล้วเข้าร่วมได้จากหน้า dashboard",
+  },
+  {
+    title: "3. รับใบ Certificate",
+    description: "เข้าร่วมครบตามเกณฑ์ ยื่นคำร้อง แล้วดาวน์โหลดใบเซอร์ได้ทันที",
+  },
+];
 
 export default async function Home() {
   const supabase = await createClient();
   const today = new Date().toISOString().slice(0, 10);
 
-  const { data: period } = await supabase
-    .from("registration_periods")
-    .select("id")
-    .eq("is_active", true)
-    .lte("open_date", today)
-    .gte("close_date", today)
-    .maybeSingle();
+  const [{ data: period }, { count: projectCount }, { count: certTypeCount }, { data: faculties }, { data: upcomingProjects }] =
+    await Promise.all([
+      supabase
+        .from("registration_periods")
+        .select("id")
+        .eq("is_active", true)
+        .lte("open_date", today)
+        .gte("close_date", today)
+        .maybeSingle(),
+      supabase.from("projects").select("id", { count: "exact", head: true }),
+      supabase
+        .from("certificate_types")
+        .select("id", { count: "exact", head: true }),
+      supabase.from("faculties").select("id"),
+      supabase
+        .from("projects")
+        .select("id, code, name, description, event_date, location, duration")
+        .gte("event_date", today)
+        .order("event_date", { ascending: true })
+        .limit(3),
+    ]);
 
   return (
     <>
       <Header />
-      <main className="flex flex-1 flex-col items-center justify-center gap-8 p-8 text-center">
-        <div
-          className={`${card} anim-pop-in flex max-w-lg flex-col gap-6 text-center`}
-        >
+      <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-8 p-6 sm:p-8">
+        <div className={`${card} anim-pop-in flex flex-col gap-6 text-center`}>
           <div className="flex flex-col gap-2">
             <h1 className="text-2xl font-semibold text-slate-900">
               ระบบให้รางวัล Certificate นิสิต
@@ -37,7 +65,7 @@ export default async function Home() {
                 ลงทะเบียน
               </Link>
             ) : (
-              <span className="flex h-11 items-center justify-center rounded-xl border border-slate-200 px-6 text-slate-400">
+              <span className="flex h-12 items-center justify-center rounded-xl border border-slate-200 px-6 text-slate-400">
                 ขณะนี้ปิดรับสมัคร
               </span>
             )}
@@ -51,6 +79,64 @@ export default async function Home() {
             </Link>
           </div>
         </div>
+
+        <section className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+          <div className={`${card} anim-slide-up anim-delay-1 flex flex-col gap-1 text-center`}>
+            <span className="text-3xl font-semibold text-blue-700">
+              {projectCount ?? 0}
+            </span>
+            <span className="text-sm text-slate-500">โครงการทั้งหมด</span>
+          </div>
+          <div className={`${card} anim-slide-up anim-delay-2 flex flex-col gap-1 text-center`}>
+            <span className="text-3xl font-semibold text-blue-700">
+              {certTypeCount ?? 0}
+            </span>
+            <span className="text-sm text-slate-500">ประเภทใบเซอร์</span>
+          </div>
+          <div className={`${card} anim-slide-up anim-delay-3 flex flex-col gap-1 text-center`}>
+            <span className="text-3xl font-semibold text-blue-700">
+              {faculties?.length ?? 0}
+            </span>
+            <span className="text-sm text-slate-500">คณะที่เข้าร่วมได้</span>
+          </div>
+        </section>
+
+        <section className={`${card} flex flex-col gap-4`}>
+          <h2 className="text-center font-semibold text-slate-900">
+            ใช้งานง่ายใน 3 ขั้นตอน
+          </h2>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+            {STEPS.map((step) => (
+              <div
+                key={step.title}
+                className="flex flex-col gap-1 rounded-xl border border-slate-100 p-4"
+              >
+                <p className="font-medium text-blue-700">{step.title}</p>
+                <p className="text-sm text-slate-500">{step.description}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {upcomingProjects && upcomingProjects.length > 0 && (
+          <section className={`${card} flex flex-col gap-4`}>
+            <h2 className="font-semibold text-slate-900">โครงการที่กำลังจะจัดขึ้น</h2>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {upcomingProjects.map((project) => (
+                <div key={project.id} className="stagger-card">
+                  <ProjectCard
+                    code={project.code}
+                    name={project.name}
+                    description={project.description}
+                    eventDate={project.event_date}
+                    location={project.location}
+                    duration={project.duration}
+                  />
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
       </main>
     </>
   );

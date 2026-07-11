@@ -21,7 +21,7 @@ export function CertificateTemplateForm() {
     <form
       action={formAction}
       key={state?.message}
-      className={`${card} flex max-w-lg flex-col gap-4`}
+      className={`${card} flex w-full flex-col gap-4`}
     >
       <h2 className="font-semibold text-slate-900">สร้าง Template ใบเซอร์</h2>
 
@@ -51,8 +51,10 @@ export function CertificateTemplateForm() {
           ตำแหน่ง (x, y) ของแต่ละช่อง — พิกัดเป็นจุด นับจากมุมล่างซ้ายของภาพ
         </legend>
         {FIELDS.map((field) => (
-          <div key={field.key} className="flex items-center gap-2">
-            <span className="w-32 text-sm text-slate-600">{field.label}</span>
+          <div key={field.key} className="flex flex-wrap items-center gap-2">
+            <span className="w-full text-sm text-slate-600 sm:w-32">
+              {field.label}
+            </span>
             <input
               name={`${field.key}_x`}
               type="number"

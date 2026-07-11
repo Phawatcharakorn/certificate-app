@@ -14,7 +14,7 @@ export function RegistrationPeriodForm() {
     <form
       action={formAction}
       key={state?.message}
-      className={`${card} flex max-w-sm flex-col gap-4`}
+      className={`${card} flex w-full flex-col gap-4`}
     >
       <h2 className="font-semibold text-slate-900">ตั้งช่วงเวลาเปิดรับสมัคร</h2>
 
