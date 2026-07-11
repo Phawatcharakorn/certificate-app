@@ -1,19 +1,11 @@
 "use server";
 
-import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
-import { createClient } from "@/lib/supabase/server";
 import { fetchCertificateProgress } from "@/lib/queries/certificates";
+import { requireStudent } from "@/lib/supabase/require-student";
 
 export async function requestCertificate(certificateTypeId: string) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    redirect("/login");
-  }
+  const { supabase, user } = await requireStudent();
 
   // Recompute completion server-side — never trust the client's button state.
   const progress = await fetchCertificateProgress(supabase, user.id);
