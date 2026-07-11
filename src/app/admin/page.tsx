@@ -5,6 +5,7 @@ import { Header } from "@/components/layout/Header";
 import { card } from "@/lib/ui";
 
 const NAV_ITEMS = [
+  { href: "/admin/students", label: "จัดการนิสิต" },
   { href: "/admin/projects", label: "จัดการโครงการ" },
   { href: "/admin/certificate-rules", label: "จัดการเกณฑ์ใบเซอร์" },
   { href: "/admin/requests", label: "คิวคำร้องขอใบเซอร์" },
