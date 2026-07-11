@@ -22,10 +22,16 @@ interface CertificateTypeRow {
   id: string;
   name: string;
   description: string | null;
-  certificate_type_requirements: { project_id: string; required: boolean }[];
+  certificate_type_requirements: {
+    project_id: string;
+    required: boolean;
+    set_id: string | null;
+  }[];
 }
 
-// % ความคืบหน้า = (จำนวนโครงการที่เข้าร่วมแล้วใน rule นี้ / จำนวนโครงการทั้งหมดที่ required) × 100
+// เกณฑ์ผ่านของใบเซอร์แต่ละใบ = "รายการปกติ" (set_id เป็น null) ต้องเข้าครบทุกอัน
+// บวกกับ (ถ้ามี "ชุดทางเลือก") ต้องเข้าครบอย่างน้อย 1 ชุด — ชุดที่ใกล้ผ่านที่สุดจะถูก
+// เลือกมาแสดง % ความคืบหน้า ไม่นับรวมทุกชุดพร้อมกัน
 // นับ "เข้าร่วมแล้ว" จากสถานะ 'attended' เท่านั้น (ไม่นับ 'registered' ที่ยังไม่มายืนยันตัวจริง)
 export async function fetchCertificateProgress(
   supabase: SupabaseClient,
@@ -34,7 +40,7 @@ export async function fetchCertificateProgress(
   const { data: certificateTypes } = await supabase
     .from("certificate_types")
     .select(
-      "id, name, description, certificate_type_requirements(project_id, required)",
+      "id, name, description, certificate_type_requirements(project_id, required, set_id)",
     );
 
   const { data: attended } = await supabase
@@ -63,14 +69,38 @@ export async function fetchCertificateProgress(
 
   return ((certificateTypes as unknown as CertificateTypeRow[]) ?? []).map(
     (type) => {
-      const requiredProjectIds = type.certificate_type_requirements
-        .filter((req) => req.required)
+      const flatProjectIds = type.certificate_type_requirements
+        .filter((req) => req.required && !req.set_id)
         .map((req) => req.project_id);
 
-      const total = requiredProjectIds.length;
-      const matched = requiredProjectIds.filter((id) =>
+      const setGroups = new Map<string, string[]>();
+      for (const req of type.certificate_type_requirements) {
+        if (!req.required || !req.set_id) continue;
+        const list = setGroups.get(req.set_id) ?? [];
+        list.push(req.project_id);
+        setGroups.set(req.set_id, list);
+      }
+
+      const flatTotal = flatProjectIds.length;
+      const flatMatched = flatProjectIds.filter((id) =>
         attendedProjectIds.has(id),
       ).length;
+
+      // เลือกชุดที่ใกล้ผ่านที่สุด (matched มากสุด) มาแสดงผล — ถ้าไม่มีชุดเลยก็ไม่มีผล
+      let bestSetTotal = 0;
+      let bestSetMatched = 0;
+      for (const projectIds of setGroups.values()) {
+        const matched = projectIds.filter((id) =>
+          attendedProjectIds.has(id),
+        ).length;
+        if (matched > bestSetMatched || bestSetTotal === 0) {
+          bestSetMatched = matched;
+          bestSetTotal = projectIds.length;
+        }
+      }
+
+      const total = flatTotal + bestSetTotal;
+      const matched = flatMatched + bestSetMatched;
       const percent = total === 0 ? 0 : Math.round((matched / total) * 100);
 
       return {

@@ -10,8 +10,10 @@ interface CertificateTypeRow {
   name: string;
   description: string | null;
   certificate_type_requirements: {
+    set_id: string | null;
     project: { code: string; name: string } | null;
   }[];
+  certificate_type_sets: { id: string; name: string }[];
 }
 
 export default async function AdminCertificateRulesPage() {
@@ -25,7 +27,7 @@ export default async function AdminCertificateRulesPage() {
   const { data: certificateTypes } = await supabase
     .from("certificate_types")
     .select(
-      "id, name, description, certificate_type_requirements(project:projects(code, name))",
+      "id, name, description, certificate_type_requirements(set_id, project:projects(code, name)), certificate_type_sets(id, name)",
     );
 
   return (
@@ -49,24 +51,57 @@ export default async function AdminCertificateRulesPage() {
             เกณฑ์ใบเซอร์ทั้งหมด
           </h2>
           {((certificateTypes as unknown as CertificateTypeRow[]) ?? []).map(
-            (type) => (
-              <div key={type.id} className={card}>
-                <p className="font-medium text-slate-900">{type.name}</p>
-                {type.description && (
-                  <p className="text-sm text-slate-500">
-                    {type.description}
-                  </p>
-                )}
-                <p className="mt-2 text-sm text-slate-600">ต้องเข้าครบ:</p>
-                <ul className="list-inside list-disc text-sm text-slate-600">
-                  {type.certificate_type_requirements.map((req, idx) => (
-                    <li key={idx}>
-                      {req.project?.code} — {req.project?.name}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ),
+            (type) => {
+              const flatReqs = type.certificate_type_requirements.filter(
+                (req) => !req.set_id,
+              );
+
+              return (
+                <div key={type.id} className={card}>
+                  <p className="font-medium text-slate-900">{type.name}</p>
+                  {type.description && (
+                    <p className="text-sm text-slate-500">
+                      {type.description}
+                    </p>
+                  )}
+
+                  {flatReqs.length > 0 && (
+                    <>
+                      <p className="mt-2 text-sm text-slate-600">
+                        รายการปกติ (ต้องเข้าครบทุกอัน):
+                      </p>
+                      <ul className="list-inside list-disc text-sm text-slate-600">
+                        {flatReqs.map((req, idx) => (
+                          <li key={idx}>
+                            {req.project?.code} — {req.project?.name}
+                          </li>
+                        ))}
+                      </ul>
+                    </>
+                  )}
+
+                  {type.certificate_type_sets.map((set) => {
+                    const setReqs = type.certificate_type_requirements.filter(
+                      (req) => req.set_id === set.id,
+                    );
+                    return (
+                      <div key={set.id} className="mt-2">
+                        <p className="text-sm font-medium text-blue-700">
+                          ชุด &quot;{set.name}&quot; (เข้าครบชุดนี้ชุดเดียวก็ผ่าน):
+                        </p>
+                        <ul className="list-inside list-disc text-sm text-slate-600">
+                          {setReqs.map((req, idx) => (
+                            <li key={idx}>
+                              {req.project?.code} — {req.project?.name}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    );
+                  })}
+                </div>
+              );
+            },
           )}
         </section>
       </main>

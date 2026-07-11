@@ -71,10 +71,18 @@ export interface CertificateType {
   description: string | null;
 }
 
+export interface CertificateTypeSet {
+  id: string;
+  certificate_type_id: string;
+  name: string;
+  created_at: string;
+}
+
 export interface CertificateTypeRequirement {
   certificate_type_id: string;
   project_id: string;
   required: boolean;
+  set_id: string | null;
 }
 
 export interface CertificateRequest {
