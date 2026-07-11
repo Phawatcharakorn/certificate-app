@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import { Header } from "@/components/layout/Header";
+import { buttonPrimary, buttonSecondary, card } from "@/lib/ui";
 
 export default async function Home() {
   const supabase = await createClient();
@@ -14,44 +16,40 @@ export default async function Home() {
     .maybeSingle();
 
   return (
-    <main className="flex flex-1 flex-col items-center justify-center gap-8 p-8 text-center">
-      <div className="flex flex-col gap-2">
-        <h1 className="text-2xl font-semibold">
-          ระบบให้รางวัล Certificate นิสิต ม.เกษตรศาสตร์ ศรีราชา
-        </h1>
-        <p className="text-gray-500">
-          เข้าร่วมโครงการ สะสมกิจกรรม รับใบเซอร์ทิฟิเคต
-        </p>
-      </div>
+    <>
+      <Header />
+      <main className="flex flex-1 flex-col items-center justify-center gap-8 p-8 text-center">
+        <div className={`${card} flex max-w-lg flex-col gap-6 text-center`}>
+          <div className="flex flex-col gap-2">
+            <h1 className="text-2xl font-semibold text-slate-900">
+              ระบบให้รางวัล Certificate นิสิต
+            </h1>
+            <p className="text-slate-500">
+              เข้าร่วมโครงการ สะสมกิจกรรม รับใบเซอร์ทิฟิเคต
+            </p>
+          </div>
 
-      <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-        {period ? (
-          <Link
-            href="/register"
-            className="flex h-12 items-center justify-center rounded-full bg-black px-6 text-white"
-          >
-            ลงทะเบียน
-          </Link>
-        ) : (
-          <span className="flex h-12 items-center justify-center rounded-full border px-6 text-gray-400">
-            ขณะนี้ปิดรับสมัคร
-          </span>
-        )}
+          <div className="flex flex-col gap-3 text-base font-medium sm:flex-row sm:justify-center">
+            {period ? (
+              <Link href="/register" className={buttonPrimary}>
+                ลงทะเบียน
+              </Link>
+            ) : (
+              <span className="flex h-11 items-center justify-center rounded-xl border border-slate-200 px-6 text-slate-400">
+                ขณะนี้ปิดรับสมัคร
+              </span>
+            )}
 
-        <Link
-          href="/login"
-          className="flex h-12 items-center justify-center rounded-full border px-6"
-        >
-          เข้าสู่ระบบนิสิต
-        </Link>
+            <Link href="/login" className={buttonSecondary}>
+              เข้าสู่ระบบนิสิต
+            </Link>
 
-        <Link
-          href="/admin/login"
-          className="flex h-12 items-center justify-center rounded-full border px-6"
-        >
-          เข้าสู่ระบบแอดมิน
-        </Link>
-      </div>
-    </main>
+            <Link href="/admin/login" className={buttonSecondary}>
+              เข้าสู่ระบบแอดมิน
+            </Link>
+          </div>
+        </div>
+      </main>
+    </>
   );
 }

@@ -2,6 +2,7 @@
 
 import { useActionState } from "react";
 import type { AuthFormState } from "@/app/actions/auth";
+import { buttonPrimary, input, label } from "@/lib/ui";
 
 export function LoginForm({
   action,
@@ -13,36 +14,30 @@ export function LoginForm({
   const [state, formAction, pending] = useActionState(action, undefined);
 
   return (
-    <form action={formAction} className="flex flex-col gap-4 max-w-sm w-full">
+    <form action={formAction} className="flex w-full max-w-sm flex-col gap-4">
       <div className="flex flex-col gap-1">
-        <label htmlFor="email">อีเมล</label>
-        <input
-          id="email"
-          name="email"
-          type="email"
-          required
-          className="border rounded px-3 py-2"
-        />
+        <label htmlFor="email" className={label}>
+          อีเมล
+        </label>
+        <input id="email" name="email" type="email" required className={input} />
       </div>
 
       <div className="flex flex-col gap-1">
-        <label htmlFor="password">รหัสผ่าน</label>
+        <label htmlFor="password" className={label}>
+          รหัสผ่าน
+        </label>
         <input
           id="password"
           name="password"
           type="password"
           required
-          className="border rounded px-3 py-2"
+          className={input}
         />
       </div>
 
-      {state?.error && <p className="text-red-600 text-sm">{state.error}</p>}
+      {state?.error && <p className="text-sm text-red-600">{state.error}</p>}
 
-      <button
-        type="submit"
-        disabled={pending}
-        className="bg-black text-white rounded px-4 py-2 disabled:opacity-50"
-      >
+      <button type="submit" disabled={pending} className={buttonPrimary}>
         {pending ? "กำลังเข้าสู่ระบบ..." : submitLabel}
       </button>
     </form>

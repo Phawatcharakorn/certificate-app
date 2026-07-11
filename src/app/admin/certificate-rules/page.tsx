@@ -1,6 +1,9 @@
+import Link from "next/link";
 import { requireAdmin } from "@/lib/supabase/require-admin";
 import { CreateCertificateTypeForm } from "./CreateCertificateTypeForm";
 import type { Project } from "@/types/database";
+import { Header } from "@/components/layout/Header";
+import { card } from "@/lib/ui";
 
 interface CertificateTypeRow {
   id: string;
@@ -26,32 +29,47 @@ export default async function AdminCertificateRulesPage() {
     );
 
   return (
-    <main className="flex flex-1 flex-col gap-8 p-8">
-      <h1 className="text-xl font-semibold">จัดการเกณฑ์ใบเซอร์</h1>
+    <>
+      <Header
+        right={
+          <Link href="/admin" className="underline hover:text-white">
+            กลับภาพรวม
+          </Link>
+        }
+      />
+      <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-8 p-6 sm:p-8">
+        <h1 className="text-xl font-semibold text-slate-900">
+          จัดการเกณฑ์ใบเซอร์
+        </h1>
 
-      <CreateCertificateTypeForm projects={(projects as Project[]) ?? []} />
+        <CreateCertificateTypeForm projects={(projects as Project[]) ?? []} />
 
-      <section className="flex flex-col gap-4">
-        <h2 className="font-semibold">เกณฑ์ใบเซอร์ทั้งหมด</h2>
-        {((certificateTypes as unknown as CertificateTypeRow[]) ?? []).map(
-          (type) => (
-            <div key={type.id} className="border rounded p-4">
-              <p className="font-medium">{type.name}</p>
-              {type.description && (
-                <p className="text-sm text-gray-500">{type.description}</p>
-              )}
-              <p className="text-sm mt-2">ต้องเข้าครบ:</p>
-              <ul className="list-disc list-inside text-sm text-gray-600">
-                {type.certificate_type_requirements.map((req, idx) => (
-                  <li key={idx}>
-                    {req.project?.code} — {req.project?.name}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ),
-        )}
-      </section>
-    </main>
+        <section className="flex flex-col gap-4">
+          <h2 className="font-semibold text-slate-900">
+            เกณฑ์ใบเซอร์ทั้งหมด
+          </h2>
+          {((certificateTypes as unknown as CertificateTypeRow[]) ?? []).map(
+            (type) => (
+              <div key={type.id} className={card}>
+                <p className="font-medium text-slate-900">{type.name}</p>
+                {type.description && (
+                  <p className="text-sm text-slate-500">
+                    {type.description}
+                  </p>
+                )}
+                <p className="mt-2 text-sm text-slate-600">ต้องเข้าครบ:</p>
+                <ul className="list-inside list-disc text-sm text-slate-600">
+                  {type.certificate_type_requirements.map((req, idx) => (
+                    <li key={idx}>
+                      {req.project?.code} — {req.project?.name}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ),
+          )}
+        </section>
+      </main>
+    </>
   );
 }

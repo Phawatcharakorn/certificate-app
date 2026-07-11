@@ -1,11 +1,20 @@
 import { loginAdmin } from "@/app/actions/auth";
 import { LoginForm } from "@/components/auth/LoginForm";
+import { Header } from "@/components/layout/Header";
+import { card } from "@/lib/ui";
 
 export default function AdminLoginPage() {
   return (
-    <main className="flex flex-1 flex-col items-center justify-center gap-4 p-8">
-      <h1 className="text-xl font-semibold">เข้าสู่ระบบแอดมิน</h1>
-      <LoginForm action={loginAdmin} submitLabel="เข้าสู่ระบบแอดมิน" />
-    </main>
+    <>
+      <Header subtitle="เข้าสู่ระบบสำหรับผู้ดูแลระบบ" />
+      <main className="flex flex-1 flex-col items-center justify-center gap-4 p-8">
+        <div className={`${card} w-full max-w-sm`}>
+          <h1 className="mb-6 text-center text-xl font-semibold text-slate-900">
+            เข้าสู่ระบบแอดมิน
+          </h1>
+          <LoginForm action={loginAdmin} submitLabel="เข้าสู่ระบบแอดมิน" />
+        </div>
+      </main>
+    </>
   );
 }
