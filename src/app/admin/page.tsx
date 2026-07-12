@@ -65,6 +65,7 @@ export default async function AdminOverviewPage() {
   return (
     <>
       <Header
+        homeHref="/admin"
         right={
           <>
             <span className="rounded-full bg-blue-600 px-3 py-1 text-xs font-medium">

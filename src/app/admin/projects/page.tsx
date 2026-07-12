@@ -35,6 +35,7 @@ export default async function AdminProjectsPage() {
   return (
     <>
       <Header
+        homeHref="/admin"
         right={
           <Link href="/admin" className="underline hover:text-white">
             กลับภาพรวม

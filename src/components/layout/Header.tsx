@@ -4,10 +4,12 @@ import type { ReactNode } from "react";
 export function Header({
   title = "มหาวิทยาลัยเกษตรศาสตร์ วิทยาเขตศรีราชา",
   subtitle = "ระบบให้รางวัล Certificate นิสิต",
+  homeHref = "/",
   right,
 }: {
   title?: string;
   subtitle?: string;
+  homeHref?: string;
   right?: ReactNode;
 }) {
   return (
@@ -15,7 +17,7 @@ export function Header({
       className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 px-4 py-3 text-white shadow-sm sm:flex-nowrap sm:px-6"
       style={{ background: "linear-gradient(135deg, #0d2f6e 0%, #1565c0 100%)" }}
     >
-      <Link href="/" className="flex min-w-0 items-center gap-3">
+      <Link href={homeHref} className="flex min-w-0 items-center gap-3">
         <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-white shadow-sm">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img

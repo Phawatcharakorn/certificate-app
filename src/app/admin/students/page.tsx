@@ -16,6 +16,7 @@ export default async function AdminStudentsPage() {
   return (
     <>
       <Header
+        homeHref="/admin"
         right={
           <Link href="/admin" className="underline hover:text-white">
             กลับภาพรวม

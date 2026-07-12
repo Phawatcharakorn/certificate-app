@@ -20,6 +20,7 @@ export default async function AdminSettingsPage() {
   return (
     <>
       <Header
+        homeHref="/admin"
         right={
           <Link href="/admin" className="underline hover:text-white">
             กลับภาพรวม

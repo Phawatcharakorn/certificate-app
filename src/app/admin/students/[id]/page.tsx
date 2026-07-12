@@ -26,6 +26,7 @@ export default async function AdminStudentDetailPage({
   return (
     <>
       <Header
+        homeHref="/admin"
         right={
           <Link href="/admin/students" className="underline hover:text-white">
             กลับรายชื่อนิสิต

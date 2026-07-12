@@ -84,6 +84,7 @@ export function DashboardClient({
   return (
     <>
       <Header
+        homeHref="/dashboard"
         right={
           <ProfileMenu
             name={fullName ?? displayName}

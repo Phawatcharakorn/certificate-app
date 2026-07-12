@@ -283,6 +283,7 @@ export function CertificatesClient({
   return (
     <>
       <Header
+        homeHref="/dashboard"
         right={
           <ProfileMenu
             name={profile.fullName ?? profile.nickname ?? "นิสิต"}
