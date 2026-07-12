@@ -5,6 +5,8 @@ export interface CertificateRequestInfo {
   id: string;
   status: CertificateRequestStatus;
   certificate_file_url: string | null;
+  requested_at: string;
+  updated_at: string;
 }
 
 export interface CertificateProgress {
@@ -51,7 +53,9 @@ export async function fetchCertificateProgress(
 
   const { data: requests } = await supabase
     .from("certificate_requests")
-    .select("id, certificate_type_id, status, certificate_file_url")
+    .select(
+      "id, certificate_type_id, status, certificate_file_url, requested_at, updated_at",
+    )
     .eq("student_id", studentId);
 
   const attendedProjectIds = new Set(
@@ -64,6 +68,8 @@ export async function fetchCertificateProgress(
       id: req.id as string,
       status: req.status as CertificateRequestStatus,
       certificate_file_url: req.certificate_file_url as string | null,
+      requested_at: req.requested_at as string,
+      updated_at: req.updated_at as string,
     });
   }
 
