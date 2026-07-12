@@ -4,6 +4,7 @@ import type { Project } from "@/types/database";
 export interface ProjectWithFaculties extends Project {
   project_faculties: { faculty_id: string }[];
   participantCount: number;
+  eligible: boolean;
 }
 
 export interface ParticipationRow {
@@ -56,19 +57,20 @@ export async function fetchDashboardData(
     ]),
   );
 
+  const isEligible = (project: ProjectWithFaculties) =>
+    project.target_faculty_mode === "all" ||
+    project.project_faculties.some(
+      (pf) => pf.faculty_id === student?.faculty_id,
+    );
+
   const availableProjects = (
     (allProjects as unknown as ProjectWithFaculties[]) ?? []
   )
-    .filter((project) => {
-      if (joinedProjectIds.has(project.id)) return false;
-      if (project.target_faculty_mode === "all") return true;
-      return project.project_faculties.some(
-        (pf) => pf.faculty_id === student?.faculty_id,
-      );
-    })
+    .filter((project) => !joinedProjectIds.has(project.id))
     .map((project) => ({
       ...project,
       participantCount: countByProject.get(project.id) ?? 0,
+      eligible: isEligible(project),
     }));
 
   return {

@@ -8,9 +8,29 @@ export async function joinProject(projectId: string) {
 
   const { data: project } = await supabase
     .from("projects")
-    .select("capacity")
+    .select("capacity, target_faculty_mode, project_faculties(faculty_id)")
     .eq("id", projectId)
     .maybeSingle();
+
+  if (!project) {
+    throw new Error("ไม่พบโครงการนี้");
+  }
+
+  if (project.target_faculty_mode === "specific") {
+    const { data: student } = await supabase
+      .from("students")
+      .select("faculty_id")
+      .eq("id", user.id)
+      .single();
+
+    const eligible = (
+      project.project_faculties as { faculty_id: string }[]
+    ).some((pf) => pf.faculty_id === student?.faculty_id);
+
+    if (!eligible) {
+      throw new Error("โครงการนี้จำกัดเฉพาะบางคณะ คุณไม่มีสิทธิ์เข้าร่วม");
+    }
+  }
 
   if (project?.capacity !== null && project?.capacity !== undefined) {
     const { data: countRow } = await supabase

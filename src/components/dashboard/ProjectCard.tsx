@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { LockIcon } from "@/components/icons";
 
 const BANNER_GRADIENTS = [
   "from-indigo-500 to-blue-600",
@@ -43,6 +44,7 @@ export function ProjectCard({
   capacity,
   joinedCount,
   footer,
+  locked,
 }: {
   code: string;
   name: string;
@@ -53,27 +55,37 @@ export function ProjectCard({
   capacity?: number | null;
   joinedCount?: number;
   footer?: ReactNode;
+  locked?: boolean;
 }) {
   const hasCapacity = capacity !== null && capacity !== undefined;
   const remaining = hasCapacity ? capacity - (joinedCount ?? 0) : null;
   const isFull = hasCapacity && remaining !== null && remaining <= 0;
 
   return (
-    <div className="flex h-full flex-col overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm shadow-slate-200/60">
+    <div
+      className={`flex h-full flex-col overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm shadow-slate-200/60 ${locked ? "opacity-75" : ""}`}
+    >
       <div
-        className={`relative flex h-28 items-center justify-center bg-gradient-to-br ${bannerGradient(code)} text-white`}
+        className={`relative flex h-28 items-center justify-center bg-gradient-to-br text-white ${locked ? "from-slate-400 to-slate-500" : bannerGradient(code)}`}
       >
         <span className="text-2xl font-bold tracking-wide opacity-90">
           {code}
         </span>
-        {hasCapacity && (
-          <span
-            className={`absolute right-2 top-2 rounded-full bg-red-600 px-2.5 py-1 text-xs font-semibold text-white shadow-sm ${
-              isFull ? "" : "animate-pulse"
-            }`}
-          >
-            {isFull ? "เต็มแล้ว" : `เหลือ ${remaining} ที่`}
+        {locked ? (
+          <span className="absolute right-2 top-2 flex items-center gap-1 rounded-full bg-black/30 px-2.5 py-1 text-xs font-semibold text-white shadow-sm">
+            <LockIcon width={12} height={12} strokeWidth={2.5} />
+            จำกัดคณะ
           </span>
+        ) : (
+          hasCapacity && (
+            <span
+              className={`absolute right-2 top-2 rounded-full bg-red-600 px-2.5 py-1 text-xs font-semibold text-white shadow-sm ${
+                isFull ? "" : "animate-pulse"
+              }`}
+            >
+              {isFull ? "เต็มแล้ว" : `เหลือ ${remaining} ที่`}
+            </span>
+          )
         )}
       </div>
       <div className="flex flex-1 flex-col gap-2 p-4">
