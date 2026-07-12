@@ -45,6 +45,7 @@ export function ProjectCard({
   joinedCount,
   footer,
   locked,
+  coverImageUrl,
 }: {
   code: string;
   name: string;
@@ -56,6 +57,7 @@ export function ProjectCard({
   joinedCount?: number;
   footer?: ReactNode;
   locked?: boolean;
+  coverImageUrl?: string | null;
 }) {
   const hasCapacity = capacity !== null && capacity !== undefined;
   const remaining = hasCapacity ? capacity - (joinedCount ?? 0) : null;
@@ -66,9 +68,24 @@ export function ProjectCard({
       className={`flex h-full flex-col overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm shadow-slate-200/60 ${locked ? "opacity-75" : ""}`}
     >
       <div
-        className={`relative flex h-28 items-center justify-center bg-gradient-to-br text-white ${locked ? "from-slate-400 to-slate-500" : bannerGradient(code)}`}
+        className={`relative flex h-28 items-center justify-center overflow-hidden text-white ${
+          coverImageUrl
+            ? "bg-slate-800"
+            : `bg-gradient-to-br ${locked ? "from-slate-400 to-slate-500" : bannerGradient(code)}`
+        }`}
       >
-        <span className="text-2xl font-bold tracking-wide opacity-90">
+        {coverImageUrl && (
+          <>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={coverImageUrl}
+              alt=""
+              className={`absolute inset-0 h-full w-full object-cover ${locked ? "grayscale" : ""}`}
+            />
+            <div className="absolute inset-0 bg-black/35" />
+          </>
+        )}
+        <span className="relative text-2xl font-bold tracking-wide opacity-90">
           {code}
         </span>
         {locked ? (

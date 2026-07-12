@@ -42,6 +42,19 @@ export function CreateProjectForm({ faculties }: { faculties: Faculty[] }) {
       </div>
 
       <div className="flex flex-col gap-1">
+        <label htmlFor="cover_image" className={label}>
+          รูปปกโครงการ (ไม่บังคับ)
+        </label>
+        <input
+          id="cover_image"
+          name="cover_image"
+          type="file"
+          accept="image/png,image/jpeg,image/webp"
+          className={input}
+        />
+      </div>
+
+      <div className="flex flex-col gap-1">
         <label htmlFor="event_date" className={label}>
           วันที่จัดงาน
         </label>

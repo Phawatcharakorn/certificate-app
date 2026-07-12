@@ -50,6 +50,7 @@ export interface Project {
   organizer_office: string;
   target_faculty_mode: TargetFacultyMode;
   capacity: number | null;
+  cover_image_url: string | null;
   created_at: string;
 }
 

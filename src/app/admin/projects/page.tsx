@@ -13,6 +13,7 @@ interface ProjectRow {
   location: string | null;
   target_faculty_mode: "all" | "specific";
   capacity: number | null;
+  cover_image_url: string | null;
   project_faculties: { faculties: { name: string } | null }[];
   participations: { id: string }[];
 }
@@ -28,7 +29,7 @@ export default async function AdminProjectsPage() {
   const { data: projects } = await supabase
     .from("projects")
     .select(
-      "id, code, name, event_date, location, target_faculty_mode, capacity, project_faculties(faculties(name)), participations(id)",
+      "id, code, name, event_date, location, target_faculty_mode, capacity, cover_image_url, project_faculties(faculties(name)), participations(id)",
     )
     .order("created_at", { ascending: false });
 
@@ -77,7 +78,19 @@ export default async function AdminProjectsPage() {
                       >
                         <td className="py-2 pr-4">{project.code}</td>
                         <td className="py-2 pr-4 text-slate-900">
-                          {project.name}
+                          <div className="flex items-center gap-2">
+                            {project.cover_image_url ? (
+                              // eslint-disable-next-line @next/next/no-img-element
+                              <img
+                                src={project.cover_image_url}
+                                alt=""
+                                className="h-8 w-12 shrink-0 rounded-md object-cover"
+                              />
+                            ) : (
+                              <div className="h-8 w-12 shrink-0 rounded-md bg-slate-100" />
+                            )}
+                            {project.name}
+                          </div>
                         </td>
                         <td className="py-2 pr-4">{project.event_date}</td>
                         <td className="py-2 pr-4">

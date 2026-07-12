@@ -223,6 +223,7 @@ export function DashboardClient({
                   duration={project.duration}
                   capacity={project.capacity}
                   joinedCount={project.participantCount}
+                  coverImageUrl={project.cover_image_url}
                   locked={!project.eligible}
                   footer={
                     !project.eligible ? (
@@ -271,6 +272,7 @@ export function DashboardClient({
                   eventDate={row.project?.event_date ?? ""}
                   location={row.project?.location}
                   duration={row.project?.duration}
+                  coverImageUrl={row.project?.cover_image_url}
                   footer={
                     <div className="flex flex-col gap-2">
                       <span

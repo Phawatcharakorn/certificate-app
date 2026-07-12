@@ -26,6 +26,7 @@ export async function createProject(
     formData.get("target_faculty_mode") ?? "all",
   ) as TargetFacultyMode;
   const facultyIds = formData.getAll("faculty_ids").map(String);
+  const coverImage = formData.get("cover_image") as File | null;
 
   if (!code || !name || !eventDate) {
     return { error: "กรุณากรอกรหัส, ชื่อโครงการ และวันที่จัดงาน" };
@@ -33,6 +34,25 @@ export async function createProject(
 
   if (targetFacultyMode === "specific" && facultyIds.length === 0) {
     return { error: "กรุณาเลือกคณะที่เข้าร่วมได้อย่างน้อย 1 คณะ" };
+  }
+
+  let coverImageUrl: string | null = null;
+  if (coverImage && coverImage.size > 0) {
+    const filePath = `${crypto.randomUUID()}-${coverImage.name}`;
+    const { error: uploadError } = await supabase.storage
+      .from("project-covers")
+      .upload(filePath, coverImage, {
+        contentType: coverImage.type || "image/jpeg",
+      });
+
+    if (uploadError) {
+      return { error: uploadError.message };
+    }
+
+    const { data: publicUrlData } = supabase.storage
+      .from("project-covers")
+      .getPublicUrl(filePath);
+    coverImageUrl = publicUrlData.publicUrl;
   }
 
   const { data: project, error: insertError } = await supabase
@@ -48,6 +68,7 @@ export async function createProject(
       ...(organizerOffice ? { organizer_office: organizerOffice } : {}),
       target_faculty_mode: targetFacultyMode,
       capacity,
+      cover_image_url: coverImageUrl,
     })
     .select("id")
     .single();

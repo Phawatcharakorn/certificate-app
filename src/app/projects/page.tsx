@@ -39,6 +39,7 @@ export default async function ProjectsPage() {
                 duration={project.duration}
                 capacity={project.capacity}
                 joinedCount={project.participantCount}
+                coverImageUrl={project.cover_image_url}
                 footer={
                   <Link href="/login" className={`${buttonSecondary} w-full`}>
                     เข้าสู่ระบบเพื่อเข้าร่วม

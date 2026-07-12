@@ -130,6 +130,7 @@ export default async function Home() {
                     duration={project.duration}
                     capacity={project.capacity}
                     joinedCount={project.participantCount}
+                    coverImageUrl={project.cover_image_url}
                   />
                 </div>
               ))}

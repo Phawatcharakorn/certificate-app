@@ -12,7 +12,7 @@ export async function fetchPublicProjects(
   let query = supabase
     .from("projects")
     .select(
-      "id, code, name, description, event_date, location, duration, capacity",
+      "id, code, name, description, event_date, location, duration, capacity, cover_image_url",
     )
     .order("event_date", { ascending: true });
 
