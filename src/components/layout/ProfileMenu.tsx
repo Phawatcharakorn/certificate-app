@@ -56,9 +56,12 @@ export function ProfileMenu({
               )}
             </div>
             <div className="border-t border-slate-100" />
-            <div onClick={() => setOpen(false)} className="py-1">
-              {children}
-            </div>
+            {/* No close-on-click here: closing synchronously unmounts a
+                type="submit" button before the browser can process its
+                native form submission, silently dropping the click. Items
+                that navigate (Link, form submit) unmount this menu on their
+                own once the page changes. */}
+            <div className="py-1">{children}</div>
           </div>
         </>
       )}
