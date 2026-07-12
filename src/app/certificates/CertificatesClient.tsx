@@ -35,10 +35,18 @@ import {
   XCircleIcon,
 } from "@/components/icons";
 
-type DisplayStatus = "not_ready" | "ready" | "pending" | "processing" | "completed" | "rejected";
+type DisplayStatus =
+  | "not_ready"
+  | "failed"
+  | "ready"
+  | "pending"
+  | "processing"
+  | "completed"
+  | "rejected";
 
 const STATUS_LABEL: Record<DisplayStatus, string> = {
   not_ready: "กำลังสะสม",
+  failed: "ไม่ผ่าน",
   ready: "พร้อมยื่นคำร้อง",
   pending: "รอดำเนินการ",
   processing: "กำลังดำเนินการ",
@@ -48,6 +56,7 @@ const STATUS_LABEL: Record<DisplayStatus, string> = {
 
 const STATUS_STYLE: Record<DisplayStatus, string> = {
   not_ready: "bg-slate-100 text-slate-600",
+  failed: "bg-red-50 text-red-700",
   ready: "bg-blue-50 text-blue-700",
   pending: "bg-amber-50 text-amber-700",
   processing: "bg-sky-50 text-sky-700",
@@ -57,6 +66,7 @@ const STATUS_STYLE: Record<DisplayStatus, string> = {
 
 const STATUS_ICON: Record<DisplayStatus, typeof CheckCircleIcon> = {
   not_ready: ClockIcon,
+  failed: XCircleIcon,
   ready: SendIcon,
   pending: ClockIcon,
   processing: ClockIcon,
@@ -66,6 +76,7 @@ const STATUS_ICON: Record<DisplayStatus, typeof CheckCircleIcon> = {
 
 function getDisplayStatus(item: CertificateProgress): DisplayStatus {
   if (item.request) return item.request.status;
+  if (item.isFailed) return "failed";
   if (item.isComplete) return "ready";
   return "not_ready";
 }

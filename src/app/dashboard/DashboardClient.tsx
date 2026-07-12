@@ -183,13 +183,19 @@ export function DashboardClient({
                     <span className="font-medium text-slate-800">
                       {item.name}
                     </span>
-                    <span className="text-slate-500">
-                      {item.matched}/{item.total} ({item.percent}%)
-                    </span>
+                    {item.isFailed ? (
+                      <span className="rounded-full bg-red-50 px-2 py-0.5 text-xs font-medium text-red-700">
+                        ไม่ผ่าน
+                      </span>
+                    ) : (
+                      <span className="text-slate-500">
+                        {item.matched}/{item.total} ({item.percent}%)
+                      </span>
+                    )}
                   </div>
                   <div className="mt-1 h-2 w-full rounded-full bg-slate-100">
                     <div
-                      className="h-2 rounded-full bg-blue-600"
+                      className={`h-2 rounded-full ${item.isFailed ? "bg-red-400" : "bg-blue-600"}`}
                       style={{ width: `${item.percent}%` }}
                     />
                   </div>

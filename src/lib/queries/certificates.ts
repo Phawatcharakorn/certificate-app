@@ -17,6 +17,7 @@ export interface CertificateProgress {
   total: number;
   percent: number;
   isComplete: boolean;
+  isFailed: boolean;
   request: CertificateRequestInfo | null;
 }
 
@@ -35,6 +36,9 @@ interface CertificateTypeRow {
 // บวกกับ (ถ้ามี "ชุดทางเลือก") ต้องเข้าครบอย่างน้อย 1 ชุด — ชุดที่ใกล้ผ่านที่สุดจะถูก
 // เลือกมาแสดง % ความคืบหน้า ไม่นับรวมทุกชุดพร้อมกัน
 // นับ "เข้าร่วมแล้ว" จากสถานะ 'attended' เท่านั้น (ไม่นับ 'registered' ที่ยังไม่มายืนยันตัวจริง)
+// โครงการที่กำหนดไว้เป็น "รายการปกติ" หรือ "ชุดทางเลือก" มักจัดครั้งเดียวจบ — ถ้านิสิต
+// ขาด (absent) โครงการที่จำเป็นไปแล้ว ถือว่าใบเซอร์นั้น "ไม่ผ่าน" ถาวร ไม่ใช่แค่ "กำลังสะสม"
+// (isFailed) ยกเว้นกรณีมีชุดทางเลือกอื่นที่ยังไม่ขาดสักโครงการ ก็ยังลุ้นผ่านทางชุดนั้นได้
 export async function fetchCertificateProgress(
   supabase: SupabaseClient,
   studentId: string,
@@ -45,11 +49,11 @@ export async function fetchCertificateProgress(
       "id, name, description, certificate_type_requirements(project_id, required, set_id)",
     );
 
-  const { data: attended } = await supabase
+  const { data: participations } = await supabase
     .from("participations")
-    .select("project_id")
+    .select("project_id, status")
     .eq("student_id", studentId)
-    .eq("status", "attended");
+    .in("status", ["attended", "absent"]);
 
   const { data: requests } = await supabase
     .from("certificate_requests")
@@ -59,7 +63,14 @@ export async function fetchCertificateProgress(
     .eq("student_id", studentId);
 
   const attendedProjectIds = new Set(
-    (attended ?? []).map((row) => row.project_id as string),
+    (participations ?? [])
+      .filter((row) => row.status === "attended")
+      .map((row) => row.project_id as string),
+  );
+  const absentProjectIds = new Set(
+    (participations ?? [])
+      .filter((row) => row.status === "absent")
+      .map((row) => row.project_id as string),
   );
 
   const requestByType = new Map<string, CertificateRequestInfo>();
@@ -91,23 +102,37 @@ export async function fetchCertificateProgress(
       const flatMatched = flatProjectIds.filter((id) =>
         attendedProjectIds.has(id),
       ).length;
+      const flatFailed = flatProjectIds.some((id) => absentProjectIds.has(id));
 
-      // เลือกชุดที่ใกล้ผ่านที่สุด (matched มากสุด) มาแสดงผล — ถ้าไม่มีชุดเลยก็ไม่มีผล
+      // เลือกชุดที่ใกล้ผ่านที่สุด (matched มากสุด) มาแสดงผล โดยเลี่ยงชุดที่ขาดไปแล้ว
+      // (blocked) ก่อน — ถ้าทุกชุดขาดหมด ค่อยเลือกชุดที่ดีที่สุดมาแสดง (แต่ถือว่าไม่ผ่าน)
       let bestSetTotal = 0;
       let bestSetMatched = 0;
+      let bestSetBlocked = false;
+      let everySetBlocked = setGroups.size > 0;
       for (const projectIds of setGroups.values()) {
         const matched = projectIds.filter((id) =>
           attendedProjectIds.has(id),
         ).length;
-        if (matched > bestSetMatched || bestSetTotal === 0) {
+        const blocked = projectIds.some((id) => absentProjectIds.has(id));
+        if (!blocked) everySetBlocked = false;
+
+        const isBetter =
+          bestSetTotal === 0 ||
+          (bestSetBlocked && !blocked) ||
+          (blocked === bestSetBlocked && matched > bestSetMatched);
+
+        if (isBetter) {
           bestSetMatched = matched;
           bestSetTotal = projectIds.length;
+          bestSetBlocked = blocked;
         }
       }
 
       const total = flatTotal + bestSetTotal;
       const matched = flatMatched + bestSetMatched;
       const percent = total === 0 ? 0 : Math.round((matched / total) * 100);
+      const isFailed = flatFailed || everySetBlocked;
 
       return {
         certificateTypeId: type.id,
@@ -117,6 +142,7 @@ export async function fetchCertificateProgress(
         total,
         percent,
         isComplete: total > 0 && matched === total,
+        isFailed,
         request: requestByType.get(type.id) ?? null,
       };
     },
