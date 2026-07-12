@@ -54,9 +54,13 @@ export async function joinProject(projectId: string) {
   }
 
   revalidatePath("/dashboard");
+  revalidatePath("/projects/[id]", "page");
 }
 
-export async function cancelParticipation(participationId: string) {
+export async function cancelParticipation(
+  participationId: string,
+  projectId?: string,
+) {
   const { supabase, user } = await requireStudent();
 
   const { error } = await supabase
@@ -71,4 +75,6 @@ export async function cancelParticipation(participationId: string) {
   }
 
   revalidatePath("/dashboard");
+  if (projectId) revalidatePath(`/projects/${projectId}`);
+  else revalidatePath("/projects/[id]", "page");
 }

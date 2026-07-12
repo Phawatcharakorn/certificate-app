@@ -8,7 +8,6 @@ import { fetchDashboardData, type DashboardData } from "@/lib/queries/dashboard"
 import type { CertificateProgress } from "@/lib/queries/certificates";
 import { useRealtimeInvalidate } from "@/hooks/useRealtimeInvalidate";
 import { signOut } from "@/app/actions/auth";
-import { cancelParticipation, joinProject } from "./actions";
 import { Header } from "@/components/layout/Header";
 import {
   ProfileMenu,
@@ -225,6 +224,7 @@ export function DashboardClient({
                   joinedCount={project.participantCount}
                   coverImageUrl={project.cover_image_url}
                   locked={!project.eligible}
+                  href={`/projects/${project.id}`}
                   footer={
                     !project.eligible ? (
                       <div className="flex items-center gap-1.5 rounded-xl bg-slate-100 px-4 py-2 text-sm text-slate-500">
@@ -233,22 +233,13 @@ export function DashboardClient({
                       </div>
                     ) : project.capacity !== null &&
                       project.participantCount >= project.capacity ? (
-                      <button
-                        type="button"
-                        disabled
-                        className="w-full cursor-not-allowed rounded-xl bg-slate-200 px-4 py-2 text-sm font-medium text-slate-500"
-                      >
+                      <div className="rounded-xl bg-slate-100 px-4 py-2 text-center text-sm font-medium text-slate-500">
                         เต็มแล้ว
-                      </button>
+                      </div>
                     ) : (
-                      <form action={joinProject.bind(null, project.id)}>
-                        <button
-                          type="submit"
-                          className="w-full rounded-xl bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700"
-                        >
-                          เข้าร่วม
-                        </button>
-                      </form>
+                      <div className="rounded-xl bg-blue-50 px-4 py-2 text-center text-sm font-medium text-blue-700">
+                        ดูรายละเอียด &amp; เข้าร่วม
+                      </div>
                     )
                   }
                 />
@@ -273,24 +264,13 @@ export function DashboardClient({
                   location={row.project?.location}
                   duration={row.project?.duration}
                   coverImageUrl={row.project?.cover_image_url}
+                  href={row.project?.id ? `/projects/${row.project.id}` : undefined}
                   footer={
-                    <div className="flex flex-col gap-2">
-                      <span
-                        className={`w-fit rounded-full px-3 py-1 text-xs font-medium ${STATUS_STYLE[row.status] ?? "bg-slate-100 text-slate-600"}`}
-                      >
-                        {STATUS_LABEL[row.status] ?? row.status}
-                      </span>
-                      {row.status === "registered" && (
-                        <form action={cancelParticipation.bind(null, row.id)}>
-                          <button
-                            type="submit"
-                            className="w-full rounded-xl border border-red-200 px-4 py-2 text-sm font-medium text-red-600 transition hover:bg-red-50"
-                          >
-                            ยกเลิกลงทะเบียน
-                          </button>
-                        </form>
-                      )}
-                    </div>
+                    <span
+                      className={`w-fit rounded-full px-3 py-1 text-xs font-medium ${STATUS_STYLE[row.status] ?? "bg-slate-100 text-slate-600"}`}
+                    >
+                      {STATUS_LABEL[row.status] ?? row.status}
+                    </span>
                   }
                 />
               </div>

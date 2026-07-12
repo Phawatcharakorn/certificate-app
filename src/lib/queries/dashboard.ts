@@ -7,6 +7,16 @@ export interface ProjectWithFaculties extends Project {
   eligible: boolean;
 }
 
+export function isProjectEligible(
+  project: { target_faculty_mode: string; project_faculties: { faculty_id: string }[] },
+  studentFacultyId: string | null | undefined,
+) {
+  return (
+    project.target_faculty_mode === "all" ||
+    project.project_faculties.some((pf) => pf.faculty_id === studentFacultyId)
+  );
+}
+
 export interface ParticipationRow {
   id: string;
   project_id: string;
@@ -57,12 +67,6 @@ export async function fetchDashboardData(
     ]),
   );
 
-  const isEligible = (project: ProjectWithFaculties) =>
-    project.target_faculty_mode === "all" ||
-    project.project_faculties.some(
-      (pf) => pf.faculty_id === student?.faculty_id,
-    );
-
   const availableProjects = (
     (allProjects as unknown as ProjectWithFaculties[]) ?? []
   )
@@ -70,7 +74,7 @@ export async function fetchDashboardData(
     .map((project) => ({
       ...project,
       participantCount: countByProject.get(project.id) ?? 0,
-      eligible: isEligible(project),
+      eligible: isProjectEligible(project, student?.faculty_id),
     }));
 
   return {

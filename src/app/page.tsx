@@ -131,6 +131,7 @@ export default async function Home() {
                     capacity={project.capacity}
                     joinedCount={project.participantCount}
                     coverImageUrl={project.cover_image_url}
+                    href={`/projects/${project.id}`}
                   />
                 </div>
               ))}

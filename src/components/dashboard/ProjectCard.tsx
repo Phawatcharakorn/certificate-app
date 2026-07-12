@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import Link from "next/link";
 import { LockIcon } from "@/components/icons";
 
 const BANNER_GRADIENTS = [
@@ -9,7 +10,7 @@ const BANNER_GRADIENTS = [
   "from-sky-500 to-cyan-600",
 ];
 
-function bannerGradient(seed: string) {
+export function bannerGradient(seed: string) {
   let hash = 0;
   for (let i = 0; i < seed.length; i++) {
     hash = (hash * 31 + seed.charCodeAt(i)) >>> 0;
@@ -46,6 +47,7 @@ export function ProjectCard({
   footer,
   locked,
   coverImageUrl,
+  href,
 }: {
   code: string;
   name: string;
@@ -58,15 +60,20 @@ export function ProjectCard({
   footer?: ReactNode;
   locked?: boolean;
   coverImageUrl?: string | null;
+  href?: string;
 }) {
   const hasCapacity = capacity !== null && capacity !== undefined;
   const remaining = hasCapacity ? capacity - (joinedCount ?? 0) : null;
   const isFull = hasCapacity && remaining !== null && remaining <= 0;
 
-  return (
-    <div
-      className={`flex h-full flex-col overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm shadow-slate-200/60 ${locked ? "opacity-75" : ""}`}
-    >
+  const cardClassName = `flex h-full flex-col overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm shadow-slate-200/60 ${
+    href
+      ? "transition hover:-translate-y-0.5 hover:shadow-md hover:shadow-slate-300/50"
+      : ""
+  } ${locked ? "opacity-75" : ""}`;
+
+  const content = (
+    <>
       <div
         className={`relative flex h-28 items-center justify-center overflow-hidden text-white ${
           coverImageUrl
@@ -122,6 +129,16 @@ export function ProjectCard({
         </div>
         <div className="mt-auto pt-3">{footer}</div>
       </div>
-    </div>
+    </>
   );
+
+  if (href) {
+    return (
+      <Link href={href} className={cardClassName}>
+        {content}
+      </Link>
+    );
+  }
+
+  return <div className={cardClassName}>{content}</div>;
 }

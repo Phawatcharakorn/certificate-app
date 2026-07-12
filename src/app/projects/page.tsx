@@ -3,7 +3,6 @@ import { createClient } from "@/lib/supabase/server";
 import { Header } from "@/components/layout/Header";
 import { ProjectCard } from "@/components/dashboard/ProjectCard";
 import { fetchPublicProjects } from "@/lib/queries/public-projects";
-import { buttonSecondary } from "@/lib/ui";
 
 export default async function ProjectsPage() {
   const supabase = await createClient();
@@ -40,11 +39,7 @@ export default async function ProjectsPage() {
                 capacity={project.capacity}
                 joinedCount={project.participantCount}
                 coverImageUrl={project.cover_image_url}
-                footer={
-                  <Link href="/login" className={`${buttonSecondary} w-full`}>
-                    เข้าสู่ระบบเพื่อเข้าร่วม
-                  </Link>
-                }
+                href={`/projects/${project.id}`}
               />
             </div>
           ))}
