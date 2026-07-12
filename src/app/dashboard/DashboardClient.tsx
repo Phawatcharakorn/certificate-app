@@ -1,13 +1,17 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { fetchDashboardData, type DashboardData } from "@/lib/queries/dashboard";
 import { useRealtimeInvalidate } from "@/hooks/useRealtimeInvalidate";
 import { signOut } from "@/app/actions/auth";
 import { cancelParticipation, joinProject } from "./actions";
 import { Header } from "@/components/layout/Header";
+import {
+  ProfileMenu,
+  ProfileMenuButton,
+  ProfileMenuLink,
+} from "@/components/layout/ProfileMenu";
 import { card } from "@/lib/ui";
 import { ProjectCard } from "@/components/dashboard/ProjectCard";
 
@@ -36,26 +40,33 @@ export function DashboardClient({
     queryKey,
   );
 
-  const { fullName, nickname, joinedRows, availableProjects } = data;
+  const { fullName, nickname, studentCode, joinedRows, availableProjects } =
+    data;
 
   const attendedCount = joinedRows.filter(
     (row) => row.status === "attended",
   ).length;
 
+  const displayName = nickname ?? fullName ?? "นิสิต";
+
   return (
     <>
       <Header
         right={
-          <>
-            <Link href="/certificates" className="underline hover:text-white">
+          <ProfileMenu
+            name={fullName ?? displayName}
+            subtitle={studentCode ? `รหัสนิสิต ${studentCode}` : undefined}
+          >
+            <ProfileMenuLink href="/certificates">
               สถานะใบ Certificate
-            </Link>
+            </ProfileMenuLink>
+            <div className="my-1 border-t border-slate-100" />
             <form action={signOut}>
-              <button type="submit" className="underline hover:text-white">
+              <ProfileMenuButton type="submit" danger>
                 ออกจากระบบ
-              </button>
+              </ProfileMenuButton>
             </form>
-          </>
+          </ProfileMenu>
         }
       />
       <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-6 p-6 sm:p-8">

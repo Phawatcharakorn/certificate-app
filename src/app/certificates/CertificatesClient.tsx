@@ -10,7 +10,14 @@ import {
 } from "@/lib/queries/certificates";
 import { useRealtimeInvalidate } from "@/hooks/useRealtimeInvalidate";
 import { requestCertificate } from "./actions";
+import { signOut } from "@/app/actions/auth";
 import { Header } from "@/components/layout/Header";
+import {
+  ProfileMenu,
+  ProfileMenuButton,
+  ProfileMenuLink,
+} from "@/components/layout/ProfileMenu";
+import type { StudentProfile } from "@/lib/queries/profile";
 import { card } from "@/lib/ui";
 import {
   ActivityIcon,
@@ -193,9 +200,11 @@ function ActionMenu({
 export function CertificatesClient({
   userId,
   initialData,
+  profile,
 }: {
   userId: string;
   initialData: CertificateProgress[];
+  profile: StudentProfile;
 }) {
   const supabase = createClient();
   const queryKey = ["certificates", userId];
@@ -264,9 +273,22 @@ export function CertificatesClient({
     <>
       <Header
         right={
-          <Link href="/dashboard" className="underline hover:text-white">
-            กลับหน้าหลัก
-          </Link>
+          <ProfileMenu
+            name={profile.fullName ?? profile.nickname ?? "นิสิต"}
+            subtitle={
+              profile.studentCode
+                ? `รหัสนิสิต ${profile.studentCode}`
+                : undefined
+            }
+          >
+            <ProfileMenuLink href="/dashboard">กลับหน้าหลัก</ProfileMenuLink>
+            <div className="my-1 border-t border-slate-100" />
+            <form action={signOut}>
+              <ProfileMenuButton type="submit" danger>
+                ออกจากระบบ
+              </ProfileMenuButton>
+            </form>
+          </ProfileMenu>
         }
       />
       <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-6 p-4 sm:p-6 lg:p-8">

@@ -17,6 +17,7 @@ export interface ParticipationRow {
 export interface DashboardData {
   fullName: string | null;
   nickname: string | null;
+  studentCode: string | null;
   joinedRows: ParticipationRow[];
   availableProjects: ProjectWithFaculties[];
 }
@@ -27,7 +28,7 @@ export async function fetchDashboardData(
 ): Promise<DashboardData> {
   const { data: student } = await supabase
     .from("students")
-    .select("id, full_name, nickname, faculty_id")
+    .select("id, full_name, nickname, student_code, faculty_id")
     .eq("id", userId)
     .single();
 
@@ -73,6 +74,7 @@ export async function fetchDashboardData(
   return {
     fullName: student?.full_name ?? null,
     nickname: student?.nickname ?? null,
+    studentCode: student?.student_code ?? null,
     joinedRows,
     availableProjects,
   };
