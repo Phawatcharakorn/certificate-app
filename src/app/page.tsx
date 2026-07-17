@@ -75,6 +75,13 @@ export default async function Home() {
               เข้าสู่ระบบแอดมิน
             </Link>
           </div>
+
+          <Link
+            href="/certificate-criteria"
+            className="text-sm font-medium text-blue-700 underline underline-offset-2"
+          >
+            ดูหลักเกณฑ์การมอบ Certificate (Platinum / Gold / Silver)
+          </Link>
         </div>
 
         <section className="grid grid-cols-1 gap-4 sm:grid-cols-3">

@@ -55,6 +55,12 @@ const SECTIONS = [
         label: "ตั้งค่าระบบ",
         description: "กำหนดช่วงเวลาเปิดรับสมัคร และเทมเพลตใบเซอร์",
       },
+      {
+        href: "/admin/admins",
+        icon: "lock" as const,
+        label: "จัดการแอดมิน",
+        description: "เพิ่มหรือถอดถอนสิทธิ์แอดมินคนอื่น",
+      },
     ],
   },
 ];
