@@ -7,6 +7,8 @@ import fontkit from "@pdf-lib/fontkit";
 import { revalidatePath } from "next/cache";
 import { requireAdmin } from "@/lib/supabase/require-admin";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { TIER_LABEL } from "@/lib/certificate-tier";
+import type { CertificateTier } from "@/types/database";
 
 interface FieldPositions {
   full_name?: { x: number; y: number };
@@ -21,7 +23,7 @@ export async function generateCertificate(requestId: string) {
   const { data: request, error: requestError } = await supabase
     .from("certificate_requests")
     .select(
-      "id, student_id, certificate_type_id, student:students(full_name, student_code), certificate_type:certificate_types(name)",
+      "id, student_id, period_id, student:students(full_name, student_code), period:academic_periods(name)",
     )
     .eq("id", requestId)
     .single();
@@ -30,15 +32,29 @@ export async function generateCertificate(requestId: string) {
     throw new Error("ไม่พบคำร้องนี้");
   }
 
+  const { data: result } = await supabase
+    .from("student_period_results")
+    .select("tier")
+    .eq("student_id", request.student_id)
+    .eq("period_id", request.period_id)
+    .maybeSingle();
+
+  if (!result?.tier) {
+    throw new Error("นิสิตยังไม่ผ่านเกณฑ์ขั้นต่ำสำหรับปีการศึกษานี้");
+  }
+
+  const tier = result.tier as CertificateTier;
+
   const { data: template } = await supabase
     .from("certificate_templates")
     .select("*")
-    .order("name")
-    .limit(1)
+    .eq("tier", tier)
     .maybeSingle();
 
   if (!template?.background_image_url) {
-    throw new Error("ยังไม่ได้ตั้งค่า template ใบเซอร์ (ไปที่ /admin/settings)");
+    throw new Error(
+      `ยังไม่ได้ตั้งค่า template ใบเซอร์ระดับ ${TIER_LABEL[tier]} (ไปที่ /admin/settings)`,
+    );
   }
 
   const imageResponse = await fetch(template.background_image_url);
@@ -70,14 +86,12 @@ export async function generateCertificate(requestId: string) {
     full_name: string;
     student_code: string;
   } | null;
-  const certificateTypeRow = request.certificate_type as unknown as {
-    name: string;
-  } | null;
+  const periodRow = request.period as unknown as { name: string } | null;
 
   const fieldValues: Record<keyof FieldPositions, string> = {
     full_name: studentRow?.full_name ?? "",
     student_code: studentRow?.student_code ?? "",
-    certificate_name: certificateTypeRow?.name ?? "",
+    certificate_name: `${periodRow?.name ?? ""} — ${TIER_LABEL[tier]}`,
     date: new Date().toLocaleDateString("th-TH"),
   };
 

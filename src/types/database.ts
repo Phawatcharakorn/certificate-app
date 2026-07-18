@@ -5,6 +5,8 @@ export type CertificateRequestStatus =
   | "processing"
   | "completed"
   | "rejected";
+export type PeriodStatus = "open" | "closed";
+export type CertificateTier = "platinum" | "gold" | "silver";
 
 export interface Faculty {
   id: string;
@@ -52,7 +54,28 @@ export interface Project {
   target_faculty_mode: TargetFacultyMode;
   capacity: number | null;
   cover_image_url: string | null;
+  period_id: string;
   created_at: string;
+}
+
+export interface AcademicPeriod {
+  id: string;
+  name: string;
+  open_date: string;
+  close_date: string | null;
+  status: PeriodStatus;
+  created_at: string;
+}
+
+export interface StudentPeriodResult {
+  id: string;
+  period_id: string;
+  student_id: string;
+  total_projects: number;
+  attended_projects: number;
+  percent: number;
+  tier: CertificateTier | null;
+  computed_at: string;
 }
 
 export interface ProjectFaculty {
@@ -68,30 +91,10 @@ export interface Participation {
   status: ParticipationStatus;
 }
 
-export interface CertificateType {
-  id: string;
-  name: string;
-  description: string | null;
-}
-
-export interface CertificateTypeSet {
-  id: string;
-  certificate_type_id: string;
-  name: string;
-  created_at: string;
-}
-
-export interface CertificateTypeRequirement {
-  certificate_type_id: string;
-  project_id: string;
-  required: boolean;
-  set_id: string | null;
-}
-
 export interface CertificateRequest {
   id: string;
   student_id: string;
-  certificate_type_id: string;
+  period_id: string;
   status: CertificateRequestStatus;
   requested_at: string;
   updated_at: string;
@@ -103,4 +106,5 @@ export interface CertificateTemplate {
   name: string;
   background_image_url: string | null;
   field_positions: Record<string, { x: number; y: number }>;
+  tier: CertificateTier | null;
 }

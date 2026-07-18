@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import type { CertificateRequestStatus } from "@/types/database";
+import type { CertificateRequestStatus, CertificateTier } from "@/types/database";
+import { computeTier } from "@/lib/certificate-tier";
 
 export interface CertificateRequestInfo {
   id: string;
@@ -9,73 +10,87 @@ export interface CertificateRequestInfo {
   updated_at: string;
 }
 
-export interface CertificateProgress {
-  certificateTypeId: string;
-  name: string;
-  description: string | null;
-  matched: number;
+export interface CurrentPeriodProgress {
+  periodId: string;
+  periodName: string;
   total: number;
+  attended: number;
   percent: number;
-  isComplete: boolean;
-  isFailed: boolean;
+  projectedTier: CertificateTier | null;
+}
+
+export interface PeriodResult {
+  periodId: string;
+  periodName: string;
+  closeDate: string | null;
+  total: number;
+  attended: number;
+  percent: number;
+  tier: CertificateTier | null;
   request: CertificateRequestInfo | null;
 }
 
-interface CertificateTypeRow {
-  id: string;
-  name: string;
-  description: string | null;
-  certificate_type_requirements: {
-    project_id: string;
-    required: boolean;
-    set_id: string | null;
-  }[];
-}
-
-// เกณฑ์ผ่านของใบเซอร์แต่ละใบ = "รายการปกติ" (set_id เป็น null) ต้องเข้าครบทุกอัน
-// บวกกับ (ถ้ามี "ชุดทางเลือก") ต้องเข้าครบอย่างน้อย 1 ชุด — ชุดที่ใกล้ผ่านที่สุดจะถูก
-// เลือกมาแสดง % ความคืบหน้า ไม่นับรวมทุกชุดพร้อมกัน
-// นับ "เข้าร่วมแล้ว" จากสถานะ 'attended' เท่านั้น (ไม่นับ 'registered' ที่ยังไม่มายืนยันตัวจริง)
-// โครงการที่กำหนดไว้เป็น "รายการปกติ" หรือ "ชุดทางเลือก" มักจัดครั้งเดียวจบ — ถ้านิสิต
-// ขาด (absent) โครงการที่จำเป็นไปแล้ว ถือว่าใบเซอร์นั้น "ไม่ผ่าน" ถาวร ไม่ใช่แค่ "กำลังสะสม"
-// (isFailed) ยกเว้นกรณีมีชุดทางเลือกอื่นที่ยังไม่ขาดสักโครงการ ก็ยังลุ้นผ่านทางชุดนั้นได้
-export async function fetchCertificateProgress(
+export async function fetchCurrentPeriodProgress(
   supabase: SupabaseClient,
   studentId: string,
-): Promise<CertificateProgress[]> {
-  const { data: certificateTypes } = await supabase
-    .from("certificate_types")
-    .select(
-      "id, name, description, certificate_type_requirements(project_id, required, set_id)",
-    );
+): Promise<CurrentPeriodProgress | null> {
+  const { data: period } = await supabase
+    .from("academic_periods")
+    .select("id, name")
+    .eq("status", "open")
+    .maybeSingle();
 
-  const { data: participations } = await supabase
-    .from("participations")
-    .select("project_id, status")
-    .eq("student_id", studentId)
-    .in("status", ["attended", "absent"]);
+  if (!period) return null;
 
-  const { data: requests } = await supabase
-    .from("certificate_requests")
+  const { data: periodProjects } = await supabase
+    .from("projects")
+    .select("id")
+    .eq("period_id", period.id);
+
+  const projectIds = (periodProjects ?? []).map((p) => p.id as string);
+  const totalCount = projectIds.length;
+
+  let attended = 0;
+  if (totalCount > 0) {
+    const { count } = await supabase
+      .from("participations")
+      .select("id", { count: "exact", head: true })
+      .eq("student_id", studentId)
+      .eq("status", "attended")
+      .in("project_id", projectIds);
+    attended = count ?? 0;
+  }
+  const percent = totalCount === 0 ? 0 : Math.round((attended / totalCount) * 100);
+
+  return {
+    periodId: period.id,
+    periodName: period.name,
+    total: totalCount,
+    attended,
+    percent,
+    projectedTier: computeTier(percent),
+  };
+}
+
+export async function fetchPeriodHistory(
+  supabase: SupabaseClient,
+  studentId: string,
+): Promise<PeriodResult[]> {
+  const { data: results } = await supabase
+    .from("student_period_results")
     .select(
-      "id, certificate_type_id, status, certificate_file_url, requested_at, updated_at",
+      "total_projects, attended_projects, percent, tier, period:academic_periods(id, name, close_date)",
     )
     .eq("student_id", studentId);
 
-  const attendedProjectIds = new Set(
-    (participations ?? [])
-      .filter((row) => row.status === "attended")
-      .map((row) => row.project_id as string),
-  );
-  const absentProjectIds = new Set(
-    (participations ?? [])
-      .filter((row) => row.status === "absent")
-      .map((row) => row.project_id as string),
-  );
+  const { data: requests } = await supabase
+    .from("certificate_requests")
+    .select("id, period_id, status, certificate_file_url, requested_at, updated_at")
+    .eq("student_id", studentId);
 
-  const requestByType = new Map<string, CertificateRequestInfo>();
+  const requestByPeriod = new Map<string, CertificateRequestInfo>();
   for (const req of requests ?? []) {
-    requestByType.set(req.certificate_type_id as string, {
+    requestByPeriod.set(req.period_id as string, {
       id: req.id as string,
       status: req.status as CertificateRequestStatus,
       certificate_file_url: req.certificate_file_url as string | null,
@@ -84,67 +99,25 @@ export async function fetchCertificateProgress(
     });
   }
 
-  return ((certificateTypes as unknown as CertificateTypeRow[]) ?? []).map(
-    (type) => {
-      const flatProjectIds = type.certificate_type_requirements
-        .filter((req) => req.required && !req.set_id)
-        .map((req) => req.project_id);
+  type ResultRow = {
+    total_projects: number;
+    attended_projects: number;
+    percent: number;
+    tier: CertificateTier | null;
+    period: { id: string; name: string; close_date: string | null } | null;
+  };
 
-      const setGroups = new Map<string, string[]>();
-      for (const req of type.certificate_type_requirements) {
-        if (!req.required || !req.set_id) continue;
-        const list = setGroups.get(req.set_id) ?? [];
-        list.push(req.project_id);
-        setGroups.set(req.set_id, list);
-      }
-
-      const flatTotal = flatProjectIds.length;
-      const flatMatched = flatProjectIds.filter((id) =>
-        attendedProjectIds.has(id),
-      ).length;
-      const flatFailed = flatProjectIds.some((id) => absentProjectIds.has(id));
-
-      // เลือกชุดที่ใกล้ผ่านที่สุด (matched มากสุด) มาแสดงผล โดยเลี่ยงชุดที่ขาดไปแล้ว
-      // (blocked) ก่อน — ถ้าทุกชุดขาดหมด ค่อยเลือกชุดที่ดีที่สุดมาแสดง (แต่ถือว่าไม่ผ่าน)
-      let bestSetTotal = 0;
-      let bestSetMatched = 0;
-      let bestSetBlocked = false;
-      let everySetBlocked = setGroups.size > 0;
-      for (const projectIds of setGroups.values()) {
-        const matched = projectIds.filter((id) =>
-          attendedProjectIds.has(id),
-        ).length;
-        const blocked = projectIds.some((id) => absentProjectIds.has(id));
-        if (!blocked) everySetBlocked = false;
-
-        const isBetter =
-          bestSetTotal === 0 ||
-          (bestSetBlocked && !blocked) ||
-          (blocked === bestSetBlocked && matched > bestSetMatched);
-
-        if (isBetter) {
-          bestSetMatched = matched;
-          bestSetTotal = projectIds.length;
-          bestSetBlocked = blocked;
-        }
-      }
-
-      const total = flatTotal + bestSetTotal;
-      const matched = flatMatched + bestSetMatched;
-      const percent = total === 0 ? 0 : Math.round((matched / total) * 100);
-      const isFailed = flatFailed || everySetBlocked;
-
-      return {
-        certificateTypeId: type.id,
-        name: type.name,
-        description: type.description,
-        matched,
-        total,
-        percent,
-        isComplete: total > 0 && matched === total,
-        isFailed,
-        request: requestByType.get(type.id) ?? null,
-      };
-    },
-  );
+  return ((results as unknown as ResultRow[]) ?? [])
+    .filter((row) => row.period)
+    .map((row) => ({
+      periodId: row.period!.id,
+      periodName: row.period!.name,
+      closeDate: row.period!.close_date,
+      total: row.total_projects,
+      attended: row.attended_projects,
+      percent: Number(row.percent),
+      tier: row.tier,
+      request: requestByPeriod.get(row.period!.id) ?? null,
+    }))
+    .sort((a, b) => (a.closeDate ?? "") < (b.closeDate ?? "") ? 1 : -1);
 }

@@ -21,6 +21,12 @@ interface ProjectRow {
 export default async function AdminProjectsPage() {
   const { supabase } = await requireAdmin();
 
+  const { data: openPeriod } = await supabase
+    .from("academic_periods")
+    .select("id")
+    .eq("status", "open")
+    .maybeSingle();
+
   const { data: faculties } = await supabase
     .from("faculties")
     .select("*")
@@ -46,7 +52,16 @@ export default async function AdminProjectsPage() {
       <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-8 p-6 sm:p-8">
         <h1 className="text-xl font-semibold text-slate-900">จัดการโครงการ</h1>
 
-        <CreateProjectForm faculties={(faculties as Faculty[]) ?? []} />
+        {openPeriod ? (
+          <CreateProjectForm faculties={(faculties as Faculty[]) ?? []} />
+        ) : (
+          <div className={`${card} text-center text-sm text-slate-500`}>
+            กรุณาเปิดปีการศึกษาก่อนสร้างโครงการ ที่{" "}
+            <Link href="/admin/periods" className="text-blue-700 underline">
+              จัดการปีการศึกษา
+            </Link>
+          </div>
+        )}
 
         <section className="flex flex-col gap-2">
           <h2 className="font-semibold text-slate-900">

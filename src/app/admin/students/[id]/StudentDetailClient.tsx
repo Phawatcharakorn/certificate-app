@@ -89,7 +89,7 @@ export function StudentDetailClient({
               key={r.id}
               className="flex items-center justify-between rounded-xl border border-slate-100 p-3 text-sm"
             >
-              <span className="text-slate-900">{r.certificate_type?.name}</span>
+              <span className="text-slate-900">{r.period?.name}</span>
               <span className="text-slate-500">
                 {REQUEST_STATUS_LABEL[r.status] ?? r.status}
               </span>

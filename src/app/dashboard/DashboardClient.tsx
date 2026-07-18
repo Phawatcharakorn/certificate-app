@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { createClient } from "@/lib/supabase/client";
 import { fetchDashboardData, type DashboardData } from "@/lib/queries/dashboard";
-import type { CertificateProgress } from "@/lib/queries/certificates";
+import type { CurrentPeriodProgress } from "@/lib/queries/certificates";
 import { useRealtimeInvalidate } from "@/hooks/useRealtimeInvalidate";
 import { signOut } from "@/app/actions/auth";
 import { Header } from "@/components/layout/Header";
@@ -17,15 +17,16 @@ import {
 import { card } from "@/lib/ui";
 import { ProjectCard, formatThaiDate } from "@/components/dashboard/ProjectCard";
 import { BadgeIcon, CalendarIcon, LockIcon } from "@/components/icons";
+import { TIER_LABEL, TIER_STYLE } from "@/lib/certificate-tier";
 
 export function DashboardClient({
   userId,
   initialData,
-  certificateProgress,
+  currentPeriod,
 }: {
   userId: string;
   initialData: DashboardData;
-  certificateProgress: CertificateProgress[];
+  currentPeriod: CurrentPeriodProgress | null;
 }) {
   const supabase = createClient();
   const queryKey = ["dashboard", userId];
@@ -173,34 +174,33 @@ export function DashboardClient({
             </Link>
           </div>
 
-          {certificateProgress.length === 0 ? (
-            <p className="text-sm text-slate-500">ยังไม่มีเกณฑ์ใบเซอร์ในระบบ</p>
+          {!currentPeriod ? (
+            <p className="text-sm text-slate-500">ขณะนี้ไม่มีปีการศึกษาที่เปิดอยู่</p>
           ) : (
-            <div className="flex flex-col gap-3">
-              {certificateProgress.slice(0, 3).map((item) => (
-                <div key={item.certificateTypeId}>
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="font-medium text-slate-800">
-                      {item.name}
+            <div>
+              <div className="flex items-center justify-between text-sm">
+                <span className="font-medium text-slate-800">
+                  {currentPeriod.periodName}
+                </span>
+                <div className="flex items-center gap-2">
+                  {currentPeriod.projectedTier && (
+                    <span
+                      className={`rounded-full px-2 py-0.5 text-xs font-medium ${TIER_STYLE[currentPeriod.projectedTier]}`}
+                    >
+                      คาดว่าจะได้ {TIER_LABEL[currentPeriod.projectedTier]}
                     </span>
-                    {item.isFailed ? (
-                      <span className="rounded-full bg-red-50 px-2 py-0.5 text-xs font-medium text-red-700">
-                        ไม่ผ่าน
-                      </span>
-                    ) : (
-                      <span className="text-slate-500">
-                        {item.matched}/{item.total} ({item.percent}%)
-                      </span>
-                    )}
-                  </div>
-                  <div className="mt-1 h-2 w-full rounded-full bg-slate-100">
-                    <div
-                      className={`h-2 rounded-full ${item.isFailed ? "bg-red-400" : "bg-blue-600"}`}
-                      style={{ width: `${item.percent}%` }}
-                    />
-                  </div>
+                  )}
+                  <span className="text-slate-500">
+                    {currentPeriod.attended}/{currentPeriod.total} ({currentPeriod.percent}%)
+                  </span>
                 </div>
-              ))}
+              </div>
+              <div className="mt-1 h-2 w-full rounded-full bg-slate-100">
+                <div
+                  className="h-2 rounded-full bg-blue-600"
+                  style={{ width: `${currentPeriod.percent}%` }}
+                />
+              </div>
             </div>
           )}
         </section>

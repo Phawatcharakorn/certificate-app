@@ -1,30 +1,38 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { fetchCertificateProgress } from "@/lib/queries/certificates";
 import { requireStudent } from "@/lib/supabase/require-student";
 
-export async function requestCertificate(certificateTypeId: string) {
+export async function requestCertificate(periodId: string) {
   const { supabase, user } = await requireStudent();
 
-  // Recompute completion server-side — never trust the client's button state.
-  const progress = await fetchCertificateProgress(supabase, user.id);
-  const target = progress.find(
-    (item) => item.certificateTypeId === certificateTypeId,
-  );
+  // Recompute eligibility server-side — never trust the client's button state.
+  const { data: result } = await supabase
+    .from("student_period_results")
+    .select("id, tier")
+    .eq("period_id", periodId)
+    .eq("student_id", user.id)
+    .maybeSingle();
 
-  if (!target?.isComplete) {
-    throw new Error("ยังเข้าร่วมโครงการไม่ครบเงื่อนไข");
+  if (!result || !result.tier) {
+    throw new Error("ยังไม่ผ่านเกณฑ์ขั้นต่ำสำหรับปีการศึกษานี้");
   }
 
-  if (target.request) {
+  const { data: existing } = await supabase
+    .from("certificate_requests")
+    .select("id")
+    .eq("period_id", periodId)
+    .eq("student_id", user.id)
+    .maybeSingle();
+
+  if (existing) {
     // already requested — nothing to do
     return;
   }
 
   const { error } = await supabase.from("certificate_requests").insert({
     student_id: user.id,
-    certificate_type_id: certificateTypeId,
+    period_id: periodId,
     status: "pending",
   });
 

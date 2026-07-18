@@ -12,6 +12,16 @@ export async function createProject(
 ): Promise<ProjectFormState> {
   const { supabase } = await requireAdmin();
 
+  const { data: openPeriod } = await supabase
+    .from("academic_periods")
+    .select("id")
+    .eq("status", "open")
+    .maybeSingle();
+
+  if (!openPeriod) {
+    return { error: "กรุณาเปิดปีการศึกษาก่อนสร้างโครงการ (ไปที่ /admin/periods)" };
+  }
+
   const code = String(formData.get("code") ?? "");
   const name = String(formData.get("name") ?? "");
   const description = String(formData.get("description") ?? "");
@@ -69,6 +79,7 @@ export async function createProject(
       target_faculty_mode: targetFacultyMode,
       capacity,
       cover_image_url: coverImageUrl,
+      period_id: openPeriod.id,
     })
     .select("id")
     .single();

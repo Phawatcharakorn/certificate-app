@@ -3,6 +3,7 @@
 import { useActionState } from "react";
 import { createCertificateTemplate } from "./actions";
 import { buttonPrimary, card, input, label } from "@/lib/ui";
+import { TIER_LABEL } from "@/lib/certificate-tier";
 
 const FIELDS = [
   { key: "full_name", label: "ชื่อ-นามสกุล" },
@@ -30,6 +31,22 @@ export function CertificateTemplateForm() {
           ชื่อ Template
         </label>
         <input id="name" name="name" required className={input} />
+      </div>
+
+      <div className="flex flex-col gap-1">
+        <label htmlFor="tier" className={label}>
+          ระดับใบเซอร์ (แทนที่ template เดิมของระดับนี้ถ้ามี)
+        </label>
+        <select id="tier" name="tier" required className={input} defaultValue="">
+          <option value="" disabled>
+            เลือกระดับ
+          </option>
+          {(["platinum", "gold", "silver"] as const).map((tier) => (
+            <option key={tier} value={tier}>
+              {TIER_LABEL[tier]}
+            </option>
+          ))}
+        </select>
       </div>
 
       <div className="flex flex-col gap-1">

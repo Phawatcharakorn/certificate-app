@@ -12,6 +12,7 @@ import { markProcessing, rejectRequest } from "./actions";
 import { generateCertificate } from "./generate-actions";
 import { Header } from "@/components/layout/Header";
 import { card } from "@/lib/ui";
+import { TIER_LABEL } from "@/lib/certificate-tier";
 
 const STATUS_LABEL: Record<string, string> = {
   pending: "รอดำเนินการ",
@@ -64,7 +65,7 @@ export function AdminRequestsClient({
             <thead>
               <tr className="border-b border-slate-100 text-left text-slate-500">
                 <th className="py-2 pr-4">นิสิต</th>
-                <th className="py-2 pr-4">ใบเซอร์</th>
+                <th className="py-2 pr-4">ปีการศึกษา / ระดับ</th>
                 <th className="py-2 pr-4">วันที่ยื่น</th>
                 <th className="py-2 pr-4">สถานะ</th>
                 <th className="py-2 pr-4">จัดการ</th>
@@ -84,7 +85,12 @@ export function AdminRequestsClient({
                     </span>
                   </td>
                   <td className="py-2 pr-4 text-slate-700">
-                    {request.certificate_type?.name}
+                    {request.period?.name}
+                    {request.tier && (
+                      <span className="ml-1 text-slate-500">
+                        ({TIER_LABEL[request.tier]})
+                      </span>
+                    )}
                   </td>
                   <td className="py-2 pr-4 text-slate-700">
                     {new Date(request.requested_at).toLocaleDateString(

@@ -24,7 +24,7 @@ export default async function Home() {
   const supabase = await createClient();
   const today = new Date().toISOString().slice(0, 10);
 
-  const [{ data: period }, { count: projectCount }, { count: certTypeCount }, { data: faculties }, upcomingProjects] =
+  const [{ data: period }, { count: projectCount }, { count: closedPeriodCount }, { data: faculties }, upcomingProjects] =
     await Promise.all([
       supabase
         .from("registration_periods")
@@ -36,8 +36,9 @@ export default async function Home() {
         .maybeSingle(),
       supabase.from("projects").select("id", { count: "exact", head: true }),
       supabase
-        .from("certificate_types")
-        .select("id", { count: "exact", head: true }),
+        .from("academic_periods")
+        .select("id", { count: "exact", head: true })
+        .eq("status", "closed"),
       supabase.from("faculties").select("id"),
       fetchPublicProjects(supabase, { upcomingOnly: true, limit: 3 }),
     ]);
@@ -96,9 +97,9 @@ export default async function Home() {
           </div>
           <div className={`${card} anim-slide-up anim-delay-2 flex flex-col gap-1 text-center`}>
             <span className="text-3xl font-semibold text-blue-700">
-              {certTypeCount ?? 0}
+              {closedPeriodCount ?? 0}
             </span>
-            <span className="text-sm text-slate-500">ประเภทใบเซอร์</span>
+            <span className="text-sm text-slate-500">ปีการศึกษาที่ผ่านมา</span>
           </div>
           <div className={`${card} anim-slide-up anim-delay-3 flex flex-col gap-1 text-center`}>
             <span className="text-3xl font-semibold text-blue-700">

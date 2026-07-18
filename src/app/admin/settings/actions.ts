@@ -41,6 +41,7 @@ export async function createCertificateTemplate(
   const { supabase } = await requireAdmin();
 
   const name = String(formData.get("name") ?? "");
+  const tier = String(formData.get("tier") ?? "");
   const backgroundImage = formData.get("background_image") as File | null;
 
   const fields = ["full_name", "student_code", "certificate_name", "date"] as const;
@@ -54,8 +55,8 @@ export async function createCertificateTemplate(
     }
   }
 
-  if (!name || !backgroundImage || backgroundImage.size === 0) {
-    return { error: "กรุณากรอกชื่อ template และอัพโหลดพื้นหลัง" };
+  if (!name || !tier || !backgroundImage || backgroundImage.size === 0) {
+    return { error: "กรุณากรอกชื่อ template, เลือกระดับ และอัพโหลดพื้นหลัง" };
   }
 
   const filePath = `${crypto.randomUUID()}-${backgroundImage.name}`;
@@ -73,16 +74,20 @@ export async function createCertificateTemplate(
     .from("certificate-templates")
     .getPublicUrl(filePath);
 
-  const { error: insertError } = await supabase
+  const { error: upsertError } = await supabase
     .from("certificate_templates")
-    .insert({
-      name,
-      background_image_url: publicUrlData.publicUrl,
-      field_positions: fieldPositions,
-    });
+    .upsert(
+      {
+        name,
+        tier,
+        background_image_url: publicUrlData.publicUrl,
+        field_positions: fieldPositions,
+      },
+      { onConflict: "tier" },
+    );
 
-  if (insertError) {
-    return { error: insertError.message };
+  if (upsertError) {
+    return { error: upsertError.message };
   }
 
   revalidatePath("/admin/settings");

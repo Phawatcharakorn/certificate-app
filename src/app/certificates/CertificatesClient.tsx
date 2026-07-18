@@ -5,8 +5,10 @@ import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { createClient } from "@/lib/supabase/client";
 import {
-  fetchCertificateProgress,
-  type CertificateProgress,
+  fetchCurrentPeriodProgress,
+  fetchPeriodHistory,
+  type CurrentPeriodProgress,
+  type PeriodResult,
 } from "@/lib/queries/certificates";
 import { useRealtimeInvalidate } from "@/hooks/useRealtimeInvalidate";
 import { requestCertificate } from "./actions";
@@ -19,6 +21,7 @@ import {
 } from "@/components/layout/ProfileMenu";
 import type { StudentProfile } from "@/lib/queries/profile";
 import { card } from "@/lib/ui";
+import { TIER_LABEL, TIER_STYLE } from "@/lib/certificate-tier";
 import {
   ActivityIcon,
   BadgeIcon,
@@ -26,18 +29,15 @@ import {
   ChevronRightIcon,
   ClockIcon,
   DownloadIcon,
-  EyeIcon,
   FileTextIcon,
   InboxIcon,
   MoreVerticalIcon,
-  SearchIcon,
   SendIcon,
   XCircleIcon,
 } from "@/components/icons";
 
 type DisplayStatus =
-  | "not_ready"
-  | "failed"
+  | "not_eligible"
   | "ready"
   | "pending"
   | "processing"
@@ -45,8 +45,7 @@ type DisplayStatus =
   | "rejected";
 
 const STATUS_LABEL: Record<DisplayStatus, string> = {
-  not_ready: "กำลังสะสม",
-  failed: "ไม่ผ่าน",
+  not_eligible: "ไม่ผ่านเกณฑ์",
   ready: "พร้อมยื่นคำร้อง",
   pending: "รอดำเนินการ",
   processing: "กำลังดำเนินการ",
@@ -55,8 +54,7 @@ const STATUS_LABEL: Record<DisplayStatus, string> = {
 };
 
 const STATUS_STYLE: Record<DisplayStatus, string> = {
-  not_ready: "bg-slate-100 text-slate-600",
-  failed: "bg-red-50 text-red-700",
+  not_eligible: "bg-slate-100 text-slate-600",
   ready: "bg-blue-50 text-blue-700",
   pending: "bg-amber-50 text-amber-700",
   processing: "bg-sky-50 text-sky-700",
@@ -65,8 +63,7 @@ const STATUS_STYLE: Record<DisplayStatus, string> = {
 };
 
 const STATUS_ICON: Record<DisplayStatus, typeof CheckCircleIcon> = {
-  not_ready: ClockIcon,
-  failed: XCircleIcon,
+  not_eligible: XCircleIcon,
   ready: SendIcon,
   pending: ClockIcon,
   processing: ClockIcon,
@@ -74,11 +71,10 @@ const STATUS_ICON: Record<DisplayStatus, typeof CheckCircleIcon> = {
   rejected: XCircleIcon,
 };
 
-function getDisplayStatus(item: CertificateProgress): DisplayStatus {
+function getDisplayStatus(item: PeriodResult): DisplayStatus {
   if (item.request) return item.request.status;
-  if (item.isFailed) return "failed";
-  if (item.isComplete) return "ready";
-  return "not_ready";
+  if (!item.tier) return "not_eligible";
+  return "ready";
 }
 
 function formatThaiDate(iso: string | null | undefined) {
@@ -140,18 +136,18 @@ function ActionMenu({
   openId,
   setOpenId,
 }: {
-  item: CertificateProgress;
+  item: PeriodResult;
   status: DisplayStatus;
   openId: string | null;
   setOpenId: (id: string | null) => void;
 }) {
-  const isOpen = openId === item.certificateTypeId;
+  const isOpen = openId === item.periodId;
 
   return (
     <div className="relative">
       <button
         type="button"
-        onClick={() => setOpenId(isOpen ? null : item.certificateTypeId)}
+        onClick={() => setOpenId(isOpen ? null : item.periodId)}
         className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 transition hover:bg-slate-100 hover:text-slate-700"
         aria-label="เมนูการทำงาน"
       >
@@ -160,23 +156,15 @@ function ActionMenu({
 
       {isOpen && (
         <>
-          <div
-            className="fixed inset-0 z-10"
-            onClick={() => setOpenId(null)}
-          />
+          <div className="fixed inset-0 z-10" onClick={() => setOpenId(null)} />
           <div className="absolute right-0 z-20 mt-1 w-52 overflow-hidden rounded-xl border border-slate-100 bg-white py-1 shadow-lg shadow-slate-200/80">
-            <div className="flex items-center gap-2 px-3 py-2 text-xs font-medium text-slate-400">
-              <EyeIcon width={14} height={14} />
-              รายละเอียดเกณฑ์
-            </div>
-            <div className="border-t border-slate-50 px-3 py-2 text-xs text-slate-500">
-              เข้าร่วมแล้ว {item.matched}/{item.total} รายการ ({item.percent}
-              %)
+            <div className="px-3 py-2 text-xs text-slate-500">
+              เข้าร่วมแล้ว {item.attended}/{item.total} รายการ ({item.percent}%)
             </div>
 
             {status === "ready" && (
               <form
-                action={requestCertificate.bind(null, item.certificateTypeId)}
+                action={requestCertificate.bind(null, item.periodId)}
                 onSubmit={() => setOpenId(null)}
               >
                 <button
@@ -210,25 +198,28 @@ function ActionMenu({
 
 export function CertificatesClient({
   userId,
-  initialData,
+  initialCurrentPeriod,
+  initialHistory,
   profile,
 }: {
   userId: string;
-  initialData: CertificateProgress[];
+  initialCurrentPeriod: CurrentPeriodProgress | null;
+  initialHistory: PeriodResult[];
   profile: StudentProfile;
 }) {
   const supabase = createClient();
-  const queryKey = ["certificates", userId];
-  const [search, setSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState<"all" | DisplayStatus>(
-    "all",
-  );
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
 
-  const { data: progress } = useQuery({
-    queryKey,
-    queryFn: () => fetchCertificateProgress(supabase, userId),
-    initialData,
+  const { data: currentPeriod } = useQuery({
+    queryKey: ["certificates-current", userId],
+    queryFn: () => fetchCurrentPeriodProgress(supabase, userId),
+    initialData: initialCurrentPeriod,
+  });
+
+  const { data: history } = useQuery({
+    queryKey: ["certificates-history", userId],
+    queryFn: () => fetchPeriodHistory(supabase, userId),
+    initialData: initialHistory,
   });
 
   useRealtimeInvalidate(
@@ -236,49 +227,45 @@ export function CertificatesClient({
     [
       { table: "certificate_requests", filter: `student_id=eq.${userId}` },
       { table: "participations", filter: `student_id=eq.${userId}` },
+      { table: "student_period_results", filter: `student_id=eq.${userId}` },
+      { table: "academic_periods" },
     ],
-    queryKey,
+    ["certificates-current", userId],
+  );
+  useRealtimeInvalidate(
+    "certificates-history-changes",
+    [
+      { table: "certificate_requests", filter: `student_id=eq.${userId}` },
+      { table: "student_period_results", filter: `student_id=eq.${userId}` },
+    ],
+    ["certificates-history", userId],
   );
 
   const stats = useMemo(() => {
     let completed = 0;
     let inProgress = 0;
     let ready = 0;
-    for (const item of progress) {
+    for (const item of history) {
       const status = getDisplayStatus(item);
       if (status === "completed") completed += 1;
-      else if (status === "pending" || status === "processing")
-        inProgress += 1;
+      else if (status === "pending" || status === "processing") inProgress += 1;
       else if (status === "ready") ready += 1;
     }
-    return { total: progress.length, completed, inProgress, ready };
-  }, [progress]);
-
-  const filtered = useMemo(() => {
-    const q = search.trim().toLowerCase();
-    return progress.filter((item) => {
-      const status = getDisplayStatus(item);
-      if (statusFilter !== "all" && status !== statusFilter) return false;
-      if (!q) return true;
-      return (
-        item.name.toLowerCase().includes(q) ||
-        (item.description ?? "").toLowerCase().includes(q)
-      );
-    });
-  }, [progress, search, statusFilter]);
+    return { total: history.length, completed, inProgress, ready };
+  }, [history]);
 
   const activity = useMemo(() => {
-    return progress
+    return history
       .filter((item) => item.request)
       .map((item) => ({
-        certificateTypeId: item.certificateTypeId,
-        name: item.name,
+        periodId: item.periodId,
+        name: item.periodName,
         status: item.request!.status as DisplayStatus,
         date: item.request!.updated_at,
         isInitial: item.request!.requested_at === item.request!.updated_at,
       }))
       .sort((a, b) => (a.date < b.date ? 1 : -1));
-  }, [progress]);
+  }, [history]);
 
   return (
     <>
@@ -288,9 +275,7 @@ export function CertificatesClient({
           <ProfileMenu
             name={profile.fullName ?? profile.nickname ?? "นิสิต"}
             subtitle={
-              profile.studentCode
-                ? `รหัสนิสิต ${profile.studentCode}`
-                : undefined
+              profile.studentCode ? `รหัสนิสิต ${profile.studentCode}` : undefined
             }
           >
             <ProfileMenuLink href="/dashboard">กลับหน้าหลัก</ProfileMenuLink>
@@ -304,7 +289,6 @@ export function CertificatesClient({
         }
       />
       <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-6 p-4 sm:p-6 lg:p-8">
-        {/* Breadcrumb */}
         <nav
           aria-label="breadcrumb"
           className="flex items-center gap-1.5 text-sm text-slate-500"
@@ -321,14 +305,54 @@ export function CertificatesClient({
             สถานะใบ Certificate
           </h1>
           <p className="text-sm text-slate-500">
-            ติดตามความคืบหน้าและยื่นคำร้องขอใบ Certificate ของคุณได้ที่นี่
+            ติดตามความคืบหน้ารายปีการศึกษาและยื่นคำร้องขอใบ Certificate ของคุณได้ที่นี่
           </p>
+        </section>
+
+        {/* Current open period */}
+        <section className={`${card} flex flex-col gap-3`}>
+          <h2 className="flex items-center gap-2 font-semibold text-slate-900">
+            <BadgeIcon width={18} height={18} className="text-blue-700" />
+            ปีการศึกษาปัจจุบัน
+          </h2>
+          {!currentPeriod ? (
+            <p className="text-sm text-slate-500">ขณะนี้ไม่มีปีการศึกษาที่เปิดอยู่</p>
+          ) : (
+            <div>
+              <div className="flex items-center justify-between text-sm">
+                <span className="font-medium text-slate-800">
+                  {currentPeriod.periodName}
+                </span>
+                <div className="flex items-center gap-2">
+                  {currentPeriod.projectedTier && (
+                    <span
+                      className={`rounded-full px-2 py-0.5 text-xs font-medium ${TIER_STYLE[currentPeriod.projectedTier]}`}
+                    >
+                      คาดว่าจะได้ {TIER_LABEL[currentPeriod.projectedTier]}
+                    </span>
+                  )}
+                  <span className="text-slate-500">
+                    {currentPeriod.attended}/{currentPeriod.total} ({currentPeriod.percent}%)
+                  </span>
+                </div>
+              </div>
+              <div className="mt-1 h-2 w-full rounded-full bg-slate-100">
+                <div
+                  className="h-2 rounded-full bg-blue-600"
+                  style={{ width: `${currentPeriod.percent}%` }}
+                />
+              </div>
+              <p className="mt-2 text-xs text-slate-400">
+                ยื่นคำร้องขอใบเซอร์ได้หลังปีการศึกษานี้ปิด
+              </p>
+            </div>
+          )}
         </section>
 
         {/* Quick Stats */}
         <section className="grid grid-cols-2 gap-4 lg:grid-cols-4">
           <StatCard
-            label="ใบเซอร์ทั้งหมด"
+            label="ปีการศึกษาที่ปิดแล้ว"
             value={stats.total}
             icon={FileTextIcon}
             accent="bg-blue-50 text-blue-700"
@@ -357,57 +381,18 @@ export function CertificatesClient({
           />
         </section>
 
-        {/* Table card */}
+        {/* History table */}
         <section className={`${card} flex flex-col gap-4`}>
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <h2 className="flex items-center gap-2 font-semibold text-slate-900">
-              <BadgeIcon width={18} height={18} className="text-blue-700" />
-              รายการ Certificate
-            </h2>
+          <h2 className="flex items-center gap-2 font-semibold text-slate-900">
+            <BadgeIcon width={18} height={18} className="text-blue-700" />
+            ปีการศึกษาที่ปิดแล้ว
+          </h2>
 
-            <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-              <div className="relative">
-                <SearchIcon
-                  width={16}
-                  height={16}
-                  className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
-                />
-                <input
-                  type="text"
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  placeholder="ค้นหาชื่อใบเซอร์..."
-                  className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2 pl-9 pr-3 text-sm text-slate-900 outline-none transition focus:border-transparent focus:bg-white focus:ring-2 focus:ring-blue-400 sm:w-56"
-                />
-              </div>
-              <select
-                value={statusFilter}
-                onChange={(e) =>
-                  setStatusFilter(e.target.value as "all" | DisplayStatus)
-                }
-                className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700 outline-none transition focus:border-transparent focus:bg-white focus:ring-2 focus:ring-blue-400"
-              >
-                <option value="all">สถานะทั้งหมด</option>
-                {(Object.keys(STATUS_LABEL) as DisplayStatus[]).map((s) => (
-                  <option key={s} value={s}>
-                    {STATUS_LABEL[s]}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-
-          {progress.length === 0 ? (
+          {history.length === 0 ? (
             <EmptyState
               icon={InboxIcon}
-              title="ยังไม่มีเกณฑ์ใบเซอร์ในระบบ"
-              description="เมื่อมหาวิทยาลัยเพิ่มเกณฑ์ใบ Certificate รายการจะแสดงที่นี่"
-            />
-          ) : filtered.length === 0 ? (
-            <EmptyState
-              icon={SearchIcon}
-              title="ไม่พบรายการที่ค้นหา"
-              description="ลองเปลี่ยนคำค้นหาหรือตัวกรองสถานะ"
+              title="ยังไม่มีปีการศึกษาที่ปิดแล้ว"
+              description="เมื่อมหาวิทยาลัยปิดปีการศึกษา ผลของคุณจะแสดงที่นี่"
             />
           ) : (
             <>
@@ -416,34 +401,29 @@ export function CertificatesClient({
                 <table className="w-full border-collapse text-left text-sm">
                   <thead>
                     <tr className="border-b border-slate-100 text-xs uppercase tracking-wide text-slate-400">
-                      <th className="px-3 py-2 font-medium">Name</th>
-                      <th className="px-3 py-2 font-medium">Type</th>
+                      <th className="px-3 py-2 font-medium">ปีการศึกษา</th>
                       <th className="px-3 py-2 font-medium">ความคืบหน้า</th>
-                      <th className="px-3 py-2 font-medium">Status</th>
+                      <th className="px-3 py-2 font-medium">ระดับ</th>
+                      <th className="px-3 py-2 font-medium">สถานะคำร้อง</th>
                       <th className="px-3 py-2 font-medium">อัปเดตล่าสุด</th>
                       <th className="px-3 py-2 font-medium">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {filtered.map((item) => {
+                    {history.map((item) => {
                       const status = getDisplayStatus(item);
                       return (
                         <tr
-                          key={item.certificateTypeId}
+                          key={item.periodId}
                           className="border-b border-slate-50 transition hover:bg-slate-50/70"
                         >
                           <td className="px-3 py-3">
                             <p className="font-medium text-slate-900">
-                              {item.name}
+                              {item.periodName}
                             </p>
-                            {item.description && (
-                              <p className="max-w-xs truncate text-xs text-slate-400">
-                                {item.description}
-                              </p>
-                            )}
-                          </td>
-                          <td className="px-3 py-3 text-slate-500">
-                            ใบ Certificate
+                            <p className="text-xs text-slate-400">
+                              ปิดเมื่อ {formatThaiDate(item.closeDate)}
+                            </p>
                           </td>
                           <td className="px-3 py-3">
                             <div className="flex items-center gap-2">
@@ -454,9 +434,20 @@ export function CertificatesClient({
                                 />
                               </div>
                               <span className="text-xs text-slate-500">
-                                {item.matched}/{item.total}
+                                {item.attended}/{item.total}
                               </span>
                             </div>
+                          </td>
+                          <td className="px-3 py-3">
+                            {item.tier ? (
+                              <span
+                                className={`rounded-full px-2 py-0.5 text-xs font-medium ${TIER_STYLE[item.tier]}`}
+                              >
+                                {TIER_LABEL[item.tier]}
+                              </span>
+                            ) : (
+                              <span className="text-xs text-slate-400">-</span>
+                            )}
                           </td>
                           <td className="px-3 py-3">
                             <StatusBadge status={status} />
@@ -481,21 +472,25 @@ export function CertificatesClient({
 
               {/* Mobile cards */}
               <ul className="flex flex-col gap-3 md:hidden">
-                {filtered.map((item) => {
+                {history.map((item) => {
                   const status = getDisplayStatus(item);
                   return (
                     <li
-                      key={item.certificateTypeId}
+                      key={item.periodId}
                       className="stagger-card rounded-xl border border-slate-100 bg-slate-50/60 p-4"
                     >
                       <div className="flex items-start justify-between gap-2">
                         <div>
                           <p className="font-medium text-slate-900">
-                            {item.name}
+                            {item.periodName}
                           </p>
-                          <p className="text-xs text-slate-400">
-                            ใบ Certificate
-                          </p>
+                          {item.tier && (
+                            <span
+                              className={`mt-1 inline-block rounded-full px-2 py-0.5 text-xs font-medium ${TIER_STYLE[item.tier]}`}
+                            >
+                              {TIER_LABEL[item.tier]}
+                            </span>
+                          )}
                         </div>
                         <ActionMenu
                           item={item}
@@ -543,7 +538,7 @@ export function CertificatesClient({
                 const Icon = STATUS_ICON[event.status];
                 return (
                   <li
-                    key={`${event.certificateTypeId}-${event.date}`}
+                    key={`${event.periodId}-${event.date}`}
                     className="stagger-card flex gap-3"
                   >
                     <div className="flex flex-col items-center">
@@ -558,9 +553,9 @@ export function CertificatesClient({
                     </div>
                     <div className="pb-4">
                       <p className="text-sm text-slate-800">
-                        {event.isInitial ? "ยื่นคำร้องขอใบ " : "อัปเดตสถานะใบ "}
-                        <span className="font-medium">{event.name}</span>{" "}
-                        เป็น <span className="font-medium">{STATUS_LABEL[event.status]}</span>
+                        {event.isInitial ? "ยื่นคำร้องขอใบเซอร์ปี " : "อัปเดตสถานะปี "}
+                        <span className="font-medium">{event.name}</span> เป็น{" "}
+                        <span className="font-medium">{STATUS_LABEL[event.status]}</span>
                       </p>
                       <p className="text-xs text-slate-400">
                         {formatThaiDate(event.date)}

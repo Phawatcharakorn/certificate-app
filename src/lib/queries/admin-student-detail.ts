@@ -21,7 +21,7 @@ export interface CertificateRequestDetail {
   id: string;
   status: string;
   requested_at: string;
-  certificate_type: { name: string } | null;
+  period: { name: string } | null;
 }
 
 export interface AdminStudentDetailData {
@@ -48,7 +48,7 @@ export async function fetchAdminStudentDetail(
         .order("joined_at", { ascending: false }),
       supabase
         .from("certificate_requests")
-        .select("id, status, requested_at, certificate_type:certificate_types(name)")
+        .select("id, status, requested_at, period:academic_periods(name)")
         .eq("student_id", studentId)
         .order("requested_at", { ascending: false }),
     ]);

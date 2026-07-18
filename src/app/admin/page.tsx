@@ -22,10 +22,10 @@ const SECTIONS = [
         description: "สร้าง/แก้ไขโครงการกิจกรรม กำหนดคณะและจำนวนที่นั่ง",
       },
       {
-        href: "/admin/certificate-rules",
+        href: "/admin/periods",
         icon: "certificate" as const,
-        label: "จัดการเกณฑ์ใบเซอร์",
-        description: "กำหนดโครงการที่ต้องเข้าครบเพื่อรับใบ Certificate แต่ละแบบ",
+        label: "จัดการปีการศึกษา",
+        description: "เปิด/ปิดปีการศึกษา และดูสรุประดับใบ Certificate ของนิสิต",
       },
     ],
   },

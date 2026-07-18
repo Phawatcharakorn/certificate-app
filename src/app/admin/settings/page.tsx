@@ -4,6 +4,7 @@ import { RegistrationPeriodForm } from "./RegistrationPeriodForm";
 import { CertificateTemplateForm } from "./CertificateTemplateForm";
 import type { RegistrationPeriod, CertificateTemplate } from "@/types/database";
 import { Header } from "@/components/layout/Header";
+import { TIER_LABEL } from "@/lib/certificate-tier";
 
 export default async function AdminSettingsPage() {
   const { supabase } = await requireAdmin();
@@ -58,7 +59,7 @@ export default async function AdminSettingsPage() {
                 {((templates as CertificateTemplate[]) ?? []).map(
                   (template) => (
                     <li key={template.id} className="text-slate-600">
-                      {template.name}
+                      {template.tier ? TIER_LABEL[template.tier] : "-"} — {template.name}
                     </li>
                   ),
                 )}
