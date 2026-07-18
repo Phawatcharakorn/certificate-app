@@ -7,17 +7,14 @@ import { fetchPublicProjects } from "@/lib/queries/public-projects";
 
 const STEPS = [
   {
-    icon: "📝",
     title: "1. สมัครสมาชิก",
     description: "ลงทะเบียนด้วยรหัสนิสิตและอีเมล ใช้เวลาไม่ถึงนาที",
   },
   {
-    icon: "🙌",
     title: "2. เข้าร่วมโครงการ",
     description: "เลือกโครงการกิจกรรมที่เปิดรับ แล้วเข้าร่วมได้จากหน้า dashboard",
   },
   {
-    icon: "🏆",
     title: "3. รับใบ Certificate",
     description: "เข้าร่วมครบตามเกณฑ์ ยื่นคำร้อง แล้วดาวน์โหลดใบเซอร์ได้ทันที",
   },
@@ -54,19 +51,18 @@ export default async function Home() {
           style={{ background: "linear-gradient(160deg, #eaf2ff 0%, #ffffff 60%)" }}
         >
           <div className="flex flex-col items-center gap-3">
-            <span className="text-5xl">🎓</span>
             <h1 className="text-3xl font-bold text-slate-900">
               ระบบให้รางวัล Certificate นิสิต
             </h1>
             <p className="text-base text-slate-500">
-              เข้าร่วมโครงการ สะสมกิจกรรม รับใบเซอร์ทิฟิเคตง่าย ๆ ใน 3 ขั้นตอน ✨
+              เข้าร่วมโครงการ สะสมกิจกรรม รับใบเซอร์ทิฟิเคตง่าย ๆ ใน 3 ขั้นตอน
             </p>
           </div>
 
           <div className="flex flex-col gap-3 text-base font-medium sm:flex-row sm:justify-center">
             {period ? (
-              <Link href="/register" className={`${buttonPrimary} gap-2 px-7 text-base`}>
-                🚀 เริ่มลงทะเบียนเลย
+              <Link href="/register" className={`${buttonPrimary} px-7 text-base`}>
+                เริ่มลงทะเบียนเลย
               </Link>
             ) : (
               <span className="flex h-12 items-center justify-center rounded-xl border border-dashed border-slate-300 bg-slate-50 px-6 text-slate-400">
@@ -74,20 +70,20 @@ export default async function Home() {
               </span>
             )}
 
-            <Link href="/login" className={`${buttonSecondary} gap-2`}>
-              👤 เข้าสู่ระบบนิสิต
+            <Link href="/login" className={buttonSecondary}>
+              เข้าสู่ระบบนิสิต
             </Link>
 
-            <Link href="/admin/login" className={`${buttonSecondary} gap-2`}>
-              🛠️ เข้าสู่ระบบแอดมิน
+            <Link href="/admin/login" className={buttonSecondary}>
+              เข้าสู่ระบบแอดมิน
             </Link>
           </div>
 
           <Link
             href="/certificate-criteria"
-            className="text-sm font-medium text-blue-700 underline underline-offset-2 hover:text-blue-900"
+            className="mx-auto inline-flex items-center justify-center rounded-xl border border-blue-200 bg-blue-50 px-5 py-2.5 text-sm font-semibold text-blue-700 transition-all duration-150 hover:border-blue-300 hover:bg-blue-100 active:scale-95"
           >
-            📋 ดูหลักเกณฑ์การมอบ Certificate (Platinum / Gold / Silver)
+            ดูหลักเกณฑ์การมอบ Certificate (Platinum / Gold / Silver)
           </Link>
         </div>
 
@@ -122,7 +118,6 @@ export default async function Home() {
                 key={step.title}
                 className="flex flex-col items-center gap-1 rounded-xl border border-slate-100 bg-slate-50/60 p-4 text-center transition-transform duration-150 hover:-translate-y-0.5 hover:shadow-sm"
               >
-                <span className="text-3xl">{step.icon}</span>
                 <p className="font-medium text-blue-700">{step.title}</p>
                 <p className="text-sm text-slate-500">{step.description}</p>
               </div>
