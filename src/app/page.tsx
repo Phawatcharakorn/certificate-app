@@ -74,10 +74,6 @@ export default async function Home() {
             <Link href="/login" className={buttonSecondary}>
               เข้าสู่ระบบนิสิต
             </Link>
-
-            <Link href="/admin/login" className={buttonSecondary}>
-              เข้าสู่ระบบแอดมิน
-            </Link>
           </div>
 
           <Link
@@ -155,6 +151,13 @@ export default async function Home() {
             </Link>
           </section>
         )}
+
+        <Link
+          href="/admin/login"
+          className="mx-auto text-xs text-slate-400 underline-offset-2 hover:text-slate-600 hover:underline"
+        >
+          เข้าสู่ระบบแอดมิน
+        </Link>
       </main>
     </>
   );
