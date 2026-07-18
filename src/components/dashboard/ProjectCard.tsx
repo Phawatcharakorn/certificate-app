@@ -136,7 +136,7 @@ export function ProjectCard({
             </span>
           )}
         </div>
-        <div className="mt-auto pt-3">{footer}</div>
+        <div className="mt-auto border-t border-slate-100 pt-3">{footer}</div>
       </div>
     </>
   );
