@@ -1,6 +1,10 @@
 export const card =
   "rounded-2xl border border-slate-100 bg-white p-6 shadow-sm shadow-slate-200/60";
 
+// Glassmorphism variant — soft blur + layered shadow, no flat white-on-gray.
+export const cardGlass =
+  "rounded-3xl border border-white/60 bg-white/70 p-6 shadow-[0_1px_2px_rgba(15,23,42,0.04),0_12px_32px_-12px_rgba(13,60,86,0.18)] backdrop-blur-xl supports-[backdrop-filter]:bg-white/60";
+
 export const input =
   "w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-blue-400";
 
