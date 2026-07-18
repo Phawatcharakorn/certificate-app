@@ -102,11 +102,7 @@ export function ProjectCard({
           </span>
         ) : (
           hasCapacity && (
-            <span
-              className={`absolute right-2 top-2 rounded-full bg-red-600 px-2.5 py-1 text-xs font-semibold text-white shadow-sm ${
-                isFull ? "" : "animate-pulse"
-              }`}
-            >
+            <span className="absolute right-2 top-2 rounded-full bg-red-600 px-2.5 py-1 text-xs font-semibold text-white shadow-sm">
               {isFull ? "เต็มแล้ว" : `เหลือ ${remaining} ที่`}
             </span>
           )
