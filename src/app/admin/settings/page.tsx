@@ -4,6 +4,7 @@ import { RegistrationPeriodForm } from "./RegistrationPeriodForm";
 import { CertificateTemplateForm } from "./CertificateTemplateForm";
 import type { RegistrationPeriod, CertificateTemplate } from "@/types/database";
 import { Header } from "@/components/layout/Header";
+import { card } from "@/lib/ui";
 import { TIER_LABEL } from "@/lib/certificate-tier";
 
 export default async function AdminSettingsPage() {
@@ -17,6 +18,8 @@ export default async function AdminSettingsPage() {
   const { data: templates } = await supabase
     .from("certificate_templates")
     .select("*");
+
+  const templateList = (templates as CertificateTemplate[]) ?? [];
 
   return (
     <>
@@ -49,24 +52,24 @@ export default async function AdminSettingsPage() {
             </div>
           </div>
 
-          <div className="flex flex-col gap-4">
-            <CertificateTemplateForm />
-            <div>
-              <h3 className="mb-2 text-sm font-medium text-slate-700">
-                Template ที่มีอยู่
-              </h3>
-              <ul className="flex flex-col gap-2 text-sm">
-                {((templates as CertificateTemplate[]) ?? []).map(
-                  (template) => (
-                    <li key={template.id} className="text-slate-600">
-                      {template.tier ? TIER_LABEL[template.tier] : "-"} — {template.name}
-                    </li>
-                  ),
-                )}
-              </ul>
-            </div>
+          <div className={`${card} flex flex-col gap-2`}>
+            <h3 className="text-sm font-medium text-slate-700">
+              Template ที่มีอยู่
+            </h3>
+            {templateList.length === 0 && (
+              <p className="text-sm text-slate-400">ยังไม่มี template</p>
+            )}
+            <ul className="flex flex-col gap-2 text-sm">
+              {templateList.map((template) => (
+                <li key={template.id} className="text-slate-600">
+                  {template.tier ? TIER_LABEL[template.tier] : "-"} — {template.name}
+                </li>
+              ))}
+            </ul>
           </div>
         </div>
+
+        <CertificateTemplateForm existingTemplates={templateList} />
       </main>
     </>
   );
