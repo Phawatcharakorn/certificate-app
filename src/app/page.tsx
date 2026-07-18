@@ -1,20 +1,38 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { Header } from "@/components/layout/Header";
-import { buttonPrimary, buttonSecondary, card } from "@/lib/ui";
+import { Footer } from "@/components/layout/Footer";
+import {
+  buttonSecondary,
+  cardGlass,
+  eyebrow,
+  headingLg,
+  headingXl,
+  smallText,
+} from "@/lib/ui";
 import { ProjectCard } from "@/components/dashboard/ProjectCard";
 import { fetchPublicProjects } from "@/lib/queries/public-projects";
+import {
+  BadgeIcon,
+  BuildingIcon,
+  CheckCircleIcon,
+  FileTextIcon,
+  SendIcon,
+} from "@/components/icons";
 
 const STEPS = [
   {
+    icon: SendIcon,
     title: "1. สมัครสมาชิก",
     description: "ลงทะเบียนด้วยรหัสนิสิตและอีเมล ใช้เวลาไม่ถึงนาที",
   },
   {
+    icon: CheckCircleIcon,
     title: "2. เข้าร่วมโครงการ",
     description: "เลือกโครงการกิจกรรมที่เปิดรับ แล้วเข้าร่วมได้จากหน้า dashboard",
   },
   {
+    icon: BadgeIcon,
     title: "3. รับใบ Certificate",
     description: "เข้าร่วมครบตามเกณฑ์ ยื่นคำร้อง แล้วดาวน์โหลดใบเซอร์ได้ทันที",
   },
@@ -46,85 +64,103 @@ export default async function Home() {
   return (
     <>
       <Header />
-      <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-8 p-6 sm:p-8">
+      <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-10 p-6 sm:p-8">
         <div
-          className="anim-pop-in flex flex-col gap-6 rounded-2xl border border-blue-100 p-8 text-center shadow-md shadow-blue-100/60"
-          style={{ background: "linear-gradient(160deg, #eaf2ff 0%, #ffffff 60%)" }}
+          className="anim-pop-in relative overflow-hidden rounded-3xl p-8 text-center text-white shadow-[0_24px_60px_-24px_rgba(13,60,86,0.55)] sm:p-12"
+          style={{
+            background:
+              "linear-gradient(120deg, #0d2f4e 0%, #0f5c52 55%, #0d7a6a 100%)",
+          }}
         >
-          <div className="flex flex-col items-center gap-3">
-            <h1 className="text-3xl font-bold text-slate-900">
+          <div className="pointer-events-none absolute -right-20 -top-24 h-72 w-72 rounded-full bg-white/10 blur-3xl" />
+          <div className="pointer-events-none absolute -bottom-28 left-1/4 h-64 w-64 rounded-full bg-emerald-300/10 blur-3xl" />
+
+          <div className="relative flex flex-col items-center gap-3">
+            <span className={`${eyebrow} text-teal-100/85`}>
+              มหาวิทยาลัยเกษตรศาสตร์ วิทยาเขตศรีราชา
+            </span>
+            <h1 className={`${headingXl} text-white`}>
               ระบบให้รางวัล Certificate นิสิต
             </h1>
-            <p className="text-base text-slate-500">
+            <p className="max-w-lg text-base leading-relaxed text-teal-50/85">
               เข้าร่วมโครงการ สะสมกิจกรรม รับใบเซอร์ทิฟิเคตง่าย ๆ ใน 3 ขั้นตอน
             </p>
           </div>
 
-          <div className="flex flex-col gap-3 text-base font-medium sm:flex-row sm:justify-center">
+          <div className="relative mt-8 flex flex-col items-center gap-3 text-base font-medium sm:flex-row sm:justify-center">
             {period ? (
-              <Link href="/register" className={`${buttonPrimary} px-7 text-base`}>
+              <Link
+                href="/register"
+                className="inline-flex h-14 items-center justify-center rounded-xl bg-white px-8 text-base font-bold text-teal-900 shadow-lg shadow-black/20 transition-all duration-150 hover:shadow-xl hover:shadow-black/25 active:scale-95"
+              >
                 เริ่มลงทะเบียนเลย
               </Link>
             ) : (
-              <span className="flex h-12 items-center justify-center rounded-xl border border-dashed border-slate-300 bg-slate-50 px-6 text-slate-400">
+              <span className="flex h-14 items-center justify-center rounded-xl border border-dashed border-white/30 bg-white/5 px-6 text-teal-100/70">
                 ขณะนี้ปิดรับสมัคร
               </span>
             )}
 
-            <Link href="/login" className={buttonSecondary}>
+            <Link
+              href="/login"
+              className="inline-flex h-14 items-center justify-center rounded-xl border border-white/25 bg-white/10 px-7 text-base font-semibold text-white backdrop-blur-sm transition-all duration-150 hover:bg-white/20 active:scale-95"
+            >
               เข้าสู่ระบบนิสิต
             </Link>
           </div>
 
           <Link
             href="/certificate-criteria"
-            className="mx-auto inline-flex items-center justify-center rounded-xl border border-blue-200 bg-blue-50 px-5 py-2.5 text-sm font-semibold text-blue-700 transition-all duration-150 hover:border-blue-300 hover:bg-blue-100 active:scale-95"
+            className="relative mt-6 inline-flex items-center justify-center gap-1.5 text-sm font-medium text-teal-100/90 underline underline-offset-4 transition hover:text-white"
           >
             ดูหลักเกณฑ์การมอบ Certificate (Platinum / Gold / Silver)
           </Link>
         </div>
 
         <section className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-          <div className={`${card} anim-slide-up anim-delay-1 flex flex-col gap-1 text-center`}>
-            <span className="text-3xl font-semibold text-blue-700">
-              {projectCount ?? 0}
-            </span>
-            <span className="text-sm text-slate-500">โครงการทั้งหมด</span>
-          </div>
-          <div className={`${card} anim-slide-up anim-delay-2 flex flex-col gap-1 text-center`}>
-            <span className="text-3xl font-semibold text-blue-700">
-              {closedPeriodCount ?? 0}
-            </span>
-            <span className="text-sm text-slate-500">ปีการศึกษาที่ผ่านมา</span>
-          </div>
-          <div className={`${card} anim-slide-up anim-delay-3 flex flex-col gap-1 text-center`}>
-            <span className="text-3xl font-semibold text-blue-700">
-              {faculties?.length ?? 0}
-            </span>
-            <span className="text-sm text-slate-500">คณะที่เข้าร่วมได้</span>
-          </div>
+          <StatCard
+            icon={FileTextIcon}
+            value={projectCount ?? 0}
+            label="โครงการทั้งหมด"
+            delay="anim-delay-1"
+          />
+          <StatCard
+            icon={BadgeIcon}
+            value={closedPeriodCount ?? 0}
+            label="ปีการศึกษาที่ผ่านมา"
+            delay="anim-delay-2"
+          />
+          <StatCard
+            icon={BuildingIcon}
+            value={faculties?.length ?? 0}
+            label="คณะที่เข้าร่วมได้"
+            delay="anim-delay-3"
+          />
         </section>
 
-        <section className={`${card} flex flex-col gap-4`}>
-          <h2 className="text-center font-semibold text-slate-900">
-            ใช้งานง่ายใน 3 ขั้นตอน
-          </h2>
+        <section className={`${cardGlass} flex flex-col gap-6`}>
+          <h2 className={`text-center ${headingLg} text-slate-900`}>ใช้งานง่ายใน 3 ขั้นตอน</h2>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             {STEPS.map((step) => (
               <div
                 key={step.title}
-                className="flex flex-col items-center gap-1 rounded-xl border border-slate-100 bg-slate-50/60 p-4 text-center transition-transform duration-150 hover:-translate-y-0.5 hover:shadow-sm"
+                className="flex flex-col items-center gap-2 rounded-2xl border border-slate-100 bg-white/80 p-5 text-center shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md"
               >
-                <p className="font-medium text-blue-700">{step.title}</p>
-                <p className="text-sm text-slate-500">{step.description}</p>
+                <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-teal-600 to-blue-800 text-white shadow-md shadow-teal-900/20">
+                  <step.icon width={20} height={20} />
+                </span>
+                <p className="font-semibold tracking-tight text-slate-900">
+                  {step.title}
+                </p>
+                <p className={smallText}>{step.description}</p>
               </div>
             ))}
           </div>
         </section>
 
         {upcomingProjects.length > 0 && (
-          <section className={`${card} flex flex-col gap-4`}>
-            <h2 className="font-semibold text-slate-900">โครงการที่กำลังจะจัดขึ้น</h2>
+          <section className={`${cardGlass} flex flex-col gap-5`}>
+            <h2 className={`${headingLg} text-slate-900`}>โครงการที่กำลังจะจัดขึ้น</h2>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {upcomingProjects.map((project) => (
                 <div key={project.id} className="stagger-card">
@@ -143,10 +179,7 @@ export default async function Home() {
                 </div>
               ))}
             </div>
-            <Link
-              href="/projects"
-              className={`${buttonSecondary} mx-auto`}
-            >
+            <Link href="/projects" className={`${buttonSecondary} mx-auto`}>
               ดูโครงการที่เปิดทั้งหมด
             </Link>
           </section>
@@ -159,6 +192,35 @@ export default async function Home() {
           เข้าสู่ระบบแอดมิน
         </Link>
       </main>
+      <Footer />
     </>
+  );
+}
+
+function StatCard({
+  icon: Icon,
+  value,
+  label,
+  delay,
+}: {
+  icon: typeof FileTextIcon;
+  value: number;
+  label: string;
+  delay?: string;
+}) {
+  return (
+    <div
+      className={`${cardGlass} anim-slide-up ${delay ?? ""} flex items-center gap-4 p-5`}
+    >
+      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-teal-600 to-blue-800 text-white shadow-md shadow-slate-900/10">
+        <Icon width={20} height={20} strokeWidth={2.2} />
+      </div>
+      <div className="flex flex-col">
+        <span className="text-2xl font-semibold tracking-tight text-slate-900">
+          {value}
+        </span>
+        <span className={smallText}>{label}</span>
+      </div>
+    </div>
   );
 }
