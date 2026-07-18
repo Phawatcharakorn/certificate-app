@@ -32,12 +32,17 @@ export function ProfileMenu({
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="flex h-9 w-9 items-center justify-center rounded-full bg-white/15 text-sm font-semibold text-white ring-2 ring-white/25 transition hover:ring-white/60"
+        className="flex items-center gap-2 rounded-full py-0.5 pl-1 pr-1 transition hover:bg-white/10 sm:pr-3"
         aria-haspopup="menu"
         aria-expanded={open}
         aria-label="เมนูโปรไฟล์"
       >
-        {initial}
+        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-teal-400 to-blue-600 text-sm font-semibold text-white ring-2 ring-white/25 transition group-hover:ring-white/60">
+          {initial}
+        </span>
+        <span className="hidden max-w-[8rem] truncate text-sm font-medium text-white/95 sm:inline">
+          {name}
+        </span>
       </button>
 
       {open && (

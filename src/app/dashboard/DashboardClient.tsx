@@ -9,6 +9,7 @@ import type { CurrentPeriodProgress } from "@/lib/queries/certificates";
 import { useRealtimeInvalidate } from "@/hooks/useRealtimeInvalidate";
 import { signOut } from "@/app/actions/auth";
 import { Header } from "@/components/layout/Header";
+import { Footer } from "@/components/layout/Footer";
 import {
   ProfileMenu,
   ProfileMenuButton,
@@ -309,6 +310,7 @@ export function DashboardClient({
           </div>
         </section>
       </main>
+      <Footer />
     </>
   );
 }
