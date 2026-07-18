@@ -16,14 +16,18 @@ export function CreateAdminForm() {
       <h2 className="font-semibold text-slate-900">เพิ่มแอดมินใหม่</h2>
 
       <div className="flex flex-col gap-1">
-        <label htmlFor="email" className={label}>
-          อีเมล
+        <label htmlFor="username" className={label}>
+          ชื่อผู้ใช้ (Username)
         </label>
         <input
-          id="email"
-          name="email"
-          type="email"
+          id="username"
+          name="username"
+          type="text"
           required
+          minLength={3}
+          maxLength={32}
+          pattern="[a-zA-Z0-9_.-]+"
+          title="ใช้ได้เฉพาะ a-z, 0-9, . _ - เท่านั้น"
           className={input}
         />
       </div>

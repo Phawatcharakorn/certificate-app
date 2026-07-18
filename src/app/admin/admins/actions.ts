@@ -6,18 +6,27 @@ import { createAdminClient } from "@/lib/supabase/admin";
 
 export type AdminFormState = { error?: string; message?: string } | undefined;
 
+const USERNAME_PATTERN = /^[a-zA-Z0-9_.-]{3,32}$/;
+
 export async function createAdmin(
   _prevState: AdminFormState,
   formData: FormData,
 ): Promise<AdminFormState> {
   await requireAdmin();
 
-  const email = String(formData.get("email") ?? "").trim();
+  const username = String(formData.get("username") ?? "").trim();
   const password = String(formData.get("password") ?? "");
   const role = String(formData.get("role") ?? "admin").trim() || "admin";
 
-  if (!email || !password) {
-    return { error: "กรุณากรอกอีเมลและรหัสผ่าน" };
+  if (!username || !password) {
+    return { error: "กรุณากรอกชื่อผู้ใช้และรหัสผ่าน" };
+  }
+
+  if (!USERNAME_PATTERN.test(username)) {
+    return {
+      error:
+        "ชื่อผู้ใช้ต้องมี 3-32 ตัวอักษร ใช้ได้เฉพาะ a-z, 0-9, . _ - เท่านั้น",
+    };
   }
 
   if (password.length < 6) {
@@ -26,9 +35,13 @@ export async function createAdmin(
 
   const adminClient = createAdminClient();
 
+  // Supabase Auth requires an email-shaped identifier — synthesize one from
+  // the username so admins can be created/logged in without a real inbox.
+  const syntheticEmail = `${username}@admin.local`;
+
   const { data: created, error: createError } =
     await adminClient.auth.admin.createUser({
-      email,
+      email: syntheticEmail,
       password,
       email_confirm: true,
     });
@@ -39,7 +52,8 @@ export async function createAdmin(
 
   const { error: insertError } = await adminClient.from("admins").insert({
     id: created.user.id,
-    email,
+    email: syntheticEmail,
+    username,
     role,
   });
 

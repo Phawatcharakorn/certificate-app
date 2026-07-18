@@ -7,19 +7,31 @@ import { buttonPrimary, input, label } from "@/lib/ui";
 export function LoginForm({
   action,
   submitLabel,
+  identifierName = "email",
+  identifierLabel = "อีเมล",
+  identifierType = "email",
 }: {
   action: (state: AuthFormState, formData: FormData) => Promise<AuthFormState>;
   submitLabel: string;
+  identifierName?: string;
+  identifierLabel?: string;
+  identifierType?: string;
 }) {
   const [state, formAction, pending] = useActionState(action, undefined);
 
   return (
     <form action={formAction} className="flex w-full max-w-sm flex-col gap-4">
       <div className="flex flex-col gap-1">
-        <label htmlFor="email" className={label}>
-          อีเมล
+        <label htmlFor={identifierName} className={label}>
+          {identifierLabel}
         </label>
-        <input id="email" name="email" type="email" required className={input} />
+        <input
+          id={identifierName}
+          name={identifierName}
+          type={identifierType}
+          required
+          className={input}
+        />
       </div>
 
       <div className="flex flex-col gap-1">

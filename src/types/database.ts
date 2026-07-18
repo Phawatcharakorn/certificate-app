@@ -28,6 +28,7 @@ export interface StudentWithYearLevel extends Student {
 export interface Admin {
   id: string;
   email: string;
+  username: string | null;
   role: string;
 }
 

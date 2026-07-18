@@ -40,7 +40,7 @@ export default async function AdminAdminsPage() {
                 >
                   <div>
                     <p className="font-medium text-slate-900">
-                      {admin.email}
+                      {admin.username ?? admin.email}
                     </p>
                     <p className="text-xs text-slate-400">{admin.role}</p>
                   </div>

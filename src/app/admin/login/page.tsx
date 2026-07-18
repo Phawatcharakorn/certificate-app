@@ -12,7 +12,13 @@ export default function AdminLoginPage() {
           <h1 className="mb-6 text-center text-xl font-semibold text-slate-900">
             เข้าสู่ระบบแอดมิน
           </h1>
-          <LoginForm action={loginAdmin} submitLabel="เข้าสู่ระบบแอดมิน" />
+          <LoginForm
+            action={loginAdmin}
+            submitLabel="เข้าสู่ระบบแอดมิน"
+            identifierName="identifier"
+            identifierLabel="ชื่อผู้ใช้ หรือ อีเมล"
+            identifierType="text"
+          />
         </div>
       </main>
     </>

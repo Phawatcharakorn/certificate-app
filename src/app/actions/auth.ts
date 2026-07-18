@@ -104,8 +104,27 @@ export async function loginAdmin(
   _prevState: AuthFormState,
   formData: FormData,
 ): Promise<AuthFormState> {
-  const email = String(formData.get("email") ?? "");
+  const identifier = String(formData.get("identifier") ?? "").trim();
   const password = String(formData.get("password") ?? "");
+
+  let email = identifier;
+
+  // Admins created with a username (not a real email) log in with that
+  // username — look up the synthetic email Supabase Auth actually stores.
+  if (!identifier.includes("@")) {
+    const adminClient = createAdminClient();
+    const { data: adminRow } = await adminClient
+      .from("admins")
+      .select("email")
+      .eq("username", identifier)
+      .maybeSingle();
+
+    if (!adminRow) {
+      return { error: "ไม่พบชื่อผู้ใช้นี้ในระบบแอดมิน" };
+    }
+
+    email = adminRow.email;
+  }
 
   const supabase = await createClient();
   const { data, error } = await supabase.auth.signInWithPassword({
