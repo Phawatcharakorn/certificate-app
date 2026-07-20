@@ -1,6 +1,5 @@
-import Link from "next/link";
 import { requireAdmin } from "@/lib/supabase/require-admin";
-import { Header } from "@/components/layout/Header";
+import { AdminHeader } from "@/components/admin/AdminHeader";
 import { card } from "@/lib/ui";
 import type { Admin } from "@/types/database";
 import { CreateAdminForm } from "./CreateAdminForm";
@@ -16,14 +15,7 @@ export default async function AdminAdminsPage() {
 
   return (
     <>
-      <Header
-        homeHref="/admin"
-        right={
-          <Link href="/admin" className="underline hover:text-white">
-            กลับภาพรวม
-          </Link>
-        }
-      />
+      <AdminHeader crumbs={[{ label: "จัดการแอดมิน" }]} backHref="/admin" />
       <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-8 p-6 sm:p-8">
         <h1 className="text-xl font-semibold text-slate-900">จัดการแอดมิน</h1>
 

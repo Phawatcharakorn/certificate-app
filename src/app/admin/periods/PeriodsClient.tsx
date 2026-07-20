@@ -1,9 +1,8 @@
 "use client";
 
 import { useActionState, useState } from "react";
-import Link from "next/link";
 import { createPeriod, closePeriod } from "./actions";
-import { Header } from "@/components/layout/Header";
+import { AdminHeader } from "@/components/admin/AdminHeader";
 import { buttonPrimary, card, input, label } from "@/lib/ui";
 import { TIER_LABEL } from "@/lib/certificate-tier";
 import type { AcademicPeriod } from "@/types/database";
@@ -116,14 +115,7 @@ export function PeriodsClient({
 }) {
   return (
     <>
-      <Header
-        homeHref="/admin"
-        right={
-          <Link href="/admin" className="underline hover:text-white">
-            กลับภาพรวม
-          </Link>
-        }
-      />
+      <AdminHeader crumbs={[{ label: "จัดการปีการศึกษา" }]} backHref="/admin" />
       <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-8 p-6 sm:p-8">
         <h1 className="text-xl font-semibold text-slate-900">จัดการปีการศึกษา</h1>
 

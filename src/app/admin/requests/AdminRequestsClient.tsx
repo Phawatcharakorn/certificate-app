@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { createClient } from "@/lib/supabase/client";
 import {
@@ -10,7 +9,7 @@ import {
 import { useRealtimeInvalidate } from "@/hooks/useRealtimeInvalidate";
 import { markProcessing, rejectRequest } from "./actions";
 import { generateCertificate } from "./generate-actions";
-import { Header } from "@/components/layout/Header";
+import { AdminHeader } from "@/components/admin/AdminHeader";
 import { card } from "@/lib/ui";
 import { TIER_LABEL } from "@/lib/certificate-tier";
 
@@ -43,13 +42,9 @@ export function AdminRequestsClient({
 
   return (
     <>
-      <Header
-        homeHref="/admin"
-        right={
-          <Link href="/admin" className="underline hover:text-white">
-            กลับภาพรวม
-          </Link>
-        }
+      <AdminHeader
+        crumbs={[{ label: "คิวคำร้องขอใบเซอร์" }]}
+        backHref="/admin"
       />
       <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-6 p-6 sm:p-8">
         <h1 className="text-xl font-semibold text-slate-900">

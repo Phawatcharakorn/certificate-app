@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { requireAdmin } from "@/lib/supabase/require-admin";
-import { signOut } from "@/app/actions/auth";
-import { Header } from "@/components/layout/Header";
+import { AdminHeader } from "@/components/admin/AdminHeader";
 import { card } from "@/lib/ui";
 import { NavIcon } from "@/components/admin/NavIcon";
 
@@ -70,21 +69,7 @@ export default async function AdminOverviewPage() {
 
   return (
     <>
-      <Header
-        homeHref="/admin"
-        right={
-          <>
-            <span className="rounded-full bg-blue-600 px-3 py-1 text-xs font-medium">
-              Manager
-            </span>
-            <form action={signOut}>
-              <button type="submit" className="underline hover:text-white">
-                ออกจากระบบ
-              </button>
-            </form>
-          </>
-        }
-      />
+      <AdminHeader crumbs={[]} />
       <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-8 p-6 sm:p-8">
         <h1 className="text-xl font-semibold text-slate-900">
           ภาพรวมโครงการ (Admin)

@@ -1,7 +1,6 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requireAdmin } from "@/lib/supabase/require-admin";
-import { Header } from "@/components/layout/Header";
+import { AdminHeader } from "@/components/admin/AdminHeader";
 import type { Faculty } from "@/types/database";
 import { fetchAdminStudentDetail } from "@/lib/queries/admin-student-detail";
 import { StudentDetailClient } from "./StudentDetailClient";
@@ -25,13 +24,12 @@ export default async function AdminStudentDetailPage({
 
   return (
     <>
-      <Header
-        homeHref="/admin"
-        right={
-          <Link href="/admin/students" className="underline hover:text-white">
-            กลับรายชื่อนิสิต
-          </Link>
-        }
+      <AdminHeader
+        crumbs={[
+          { label: "จัดการนิสิต", href: "/admin/students" },
+          { label: initialData.student.full_name },
+        ]}
+        backHref="/admin/students"
       />
       <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-6 p-6 sm:p-8">
         <StudentDetailClient

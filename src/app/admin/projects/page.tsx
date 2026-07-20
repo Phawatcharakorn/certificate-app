@@ -2,7 +2,7 @@ import Link from "next/link";
 import { requireAdmin } from "@/lib/supabase/require-admin";
 import { CreateProjectForm } from "./CreateProjectForm";
 import type { Faculty } from "@/types/database";
-import { Header } from "@/components/layout/Header";
+import { AdminHeader } from "@/components/admin/AdminHeader";
 import { card } from "@/lib/ui";
 
 interface ProjectRow {
@@ -41,13 +41,9 @@ export default async function AdminProjectsPage() {
 
   return (
     <>
-      <Header
-        homeHref="/admin"
-        right={
-          <Link href="/admin" className="underline hover:text-white">
-            กลับภาพรวม
-          </Link>
-        }
+      <AdminHeader
+        crumbs={[{ label: "จัดการโครงการ" }]}
+        backHref="/admin"
       />
       <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-8 p-6 sm:p-8">
         <h1 className="text-xl font-semibold text-slate-900">จัดการโครงการ</h1>
