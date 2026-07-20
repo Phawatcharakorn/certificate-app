@@ -8,7 +8,7 @@ import { fetchDashboardData, type DashboardData } from "@/lib/queries/dashboard"
 import type { CurrentPeriodProgress } from "@/lib/queries/certificates";
 import { useRealtimeInvalidate } from "@/hooks/useRealtimeInvalidate";
 import { signOut } from "@/app/actions/auth";
-import { Header } from "@/components/layout/Header";
+import { Header, HeaderNavLink } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import {
   ProfileMenu,
@@ -92,6 +92,15 @@ export function DashboardClient({
     <>
       <Header
         homeHref="/dashboard"
+        nav={
+          <>
+            <HeaderNavLink href="/dashboard" active>
+              หน้าหลัก
+            </HeaderNavLink>
+            <HeaderNavLink href="/projects">โครงการ</HeaderNavLink>
+            <HeaderNavLink href="/certificates">สถานะ Certificate</HeaderNavLink>
+          </>
+        }
         right={
           <ProfileMenu
             name={fullName ?? displayName}

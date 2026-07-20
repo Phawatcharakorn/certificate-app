@@ -1,15 +1,38 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 
+export function HeaderNavLink({
+  href,
+  active,
+  children,
+}: {
+  href: string;
+  active?: boolean;
+  children: ReactNode;
+}) {
+  return (
+    <Link
+      href={href}
+      className={`whitespace-nowrap text-sm font-medium transition hover:text-white ${
+        active ? "text-white" : "text-teal-50/70"
+      }`}
+    >
+      {children}
+    </Link>
+  );
+}
+
 export function Header({
   title = "มหาวิทยาลัยเกษตรศาสตร์ วิทยาเขตศรีราชา",
   subtitle = "ระบบให้รางวัล Certificate นิสิต",
   homeHref = "/",
+  nav,
   right,
 }: {
   title?: string;
   subtitle?: string;
   homeHref?: string;
+  nav?: ReactNode;
   right?: ReactNode;
 }) {
   return (
@@ -34,8 +57,13 @@ export function Header({
           <p className="truncate text-xs text-teal-100/75">{subtitle}</p>
         </div>
       </Link>
+      {nav && (
+        <nav className="hidden min-w-0 flex-1 items-center gap-6 px-4 md:flex">
+          {nav}
+        </nav>
+      )}
       {right && (
-        <div className="flex min-w-0 items-center gap-x-3 text-xs text-teal-50/90 sm:gap-x-4 sm:text-sm">
+        <div className="flex min-w-0 shrink-0 items-center gap-x-3 text-xs text-teal-50/90 sm:gap-x-4 sm:text-sm">
           {right}
         </div>
       )}

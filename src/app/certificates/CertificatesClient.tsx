@@ -13,7 +13,7 @@ import {
 import { useRealtimeInvalidate } from "@/hooks/useRealtimeInvalidate";
 import { requestCertificate } from "./actions";
 import { signOut } from "@/app/actions/auth";
-import { Header } from "@/components/layout/Header";
+import { Header, HeaderNavLink } from "@/components/layout/Header";
 import {
   ProfileMenu,
   ProfileMenuButton,
@@ -271,6 +271,15 @@ export function CertificatesClient({
     <>
       <Header
         homeHref="/dashboard"
+        nav={
+          <>
+            <HeaderNavLink href="/dashboard">หน้าหลัก</HeaderNavLink>
+            <HeaderNavLink href="/projects">โครงการ</HeaderNavLink>
+            <HeaderNavLink href="/certificates" active>
+              สถานะ Certificate
+            </HeaderNavLink>
+          </>
+        }
         right={
           <ProfileMenu
             name={profile.fullName ?? profile.nickname ?? "นิสิต"}

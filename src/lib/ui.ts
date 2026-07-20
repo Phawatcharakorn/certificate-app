@@ -30,3 +30,7 @@ export const buttonSecondary =
   "inline-flex h-12 items-center justify-center rounded-xl border border-slate-200 bg-white px-5 text-sm font-medium text-slate-700 shadow-sm transition-all duration-150 hover:border-teal-200 hover:bg-teal-50/60 hover:text-teal-800 active:scale-95";
 
 export const linkMuted = "text-sm text-slate-500 underline hover:text-slate-700";
+
+// Compact CTA pill for the header bar (e.g. "เข้าสู่ระบบ" next to the nav links).
+export const buttonHeaderCta =
+  "inline-flex h-9 shrink-0 items-center justify-center whitespace-nowrap rounded-full bg-gradient-to-r from-teal-500 to-emerald-500 px-4 text-sm font-semibold text-white shadow-sm transition-all duration-150 hover:brightness-110 active:scale-95";

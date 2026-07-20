@@ -1,8 +1,9 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import { Header } from "@/components/layout/Header";
+import { Header, HeaderNavLink } from "@/components/layout/Header";
 import { ProjectCard } from "@/components/dashboard/ProjectCard";
 import { fetchPublicProjects } from "@/lib/queries/public-projects";
+import { buttonHeaderCta } from "@/lib/ui";
 
 export default async function ProjectsPage() {
   const supabase = await createClient();
@@ -11,10 +12,28 @@ export default async function ProjectsPage() {
   return (
     <>
       <Header
+        nav={
+          <>
+            <HeaderNavLink href="/projects" active>
+              โครงการที่เปิดรับ
+            </HeaderNavLink>
+            <HeaderNavLink href="/certificate-criteria">
+              หลักเกณฑ์ Certificate
+            </HeaderNavLink>
+          </>
+        }
         right={
-          <Link href="/" className="underline hover:text-white">
-            กลับหน้าแรก
-          </Link>
+          <>
+            <Link
+              href="/login"
+              className="hidden text-sm font-medium text-teal-50/85 hover:text-white sm:inline"
+            >
+              เข้าสู่ระบบนิสิต
+            </Link>
+            <Link href="/register" className={buttonHeaderCta}>
+              สมัครสมาชิก
+            </Link>
+          </>
         }
       />
       <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-6 p-6 sm:p-8">

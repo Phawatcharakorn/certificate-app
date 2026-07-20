@@ -1,6 +1,6 @@
 import Link from "next/link";
-import { Header } from "@/components/layout/Header";
-import { card, buttonPrimary, buttonSecondary } from "@/lib/ui";
+import { Header, HeaderNavLink } from "@/components/layout/Header";
+import { card, buttonPrimary, buttonSecondary, buttonHeaderCta } from "@/lib/ui";
 
 const ELIGIBILITY = [
   {
@@ -62,7 +62,29 @@ const NOTES = [
 export default function CertificateCriteriaPage() {
   return (
     <>
-      <Header />
+      <Header
+        nav={
+          <>
+            <HeaderNavLink href="/projects">โครงการที่เปิดรับ</HeaderNavLink>
+            <HeaderNavLink href="/certificate-criteria" active>
+              หลักเกณฑ์ Certificate
+            </HeaderNavLink>
+          </>
+        }
+        right={
+          <>
+            <Link
+              href="/login"
+              className="hidden text-sm font-medium text-teal-50/85 hover:text-white sm:inline"
+            >
+              เข้าสู่ระบบนิสิต
+            </Link>
+            <Link href="/register" className={buttonHeaderCta}>
+              สมัครสมาชิก
+            </Link>
+          </>
+        }
+      />
       <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-8 p-6 sm:p-8">
         <div className={`${card} anim-pop-in flex flex-col gap-3 text-center`}>
           <h1 className="text-2xl font-semibold text-slate-900">
