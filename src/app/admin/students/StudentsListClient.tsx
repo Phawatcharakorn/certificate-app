@@ -7,7 +7,17 @@ import { createClient } from "@/lib/supabase/client";
 import { fetchAdminStudents, type AdminStudentRow } from "@/lib/queries/admin-students";
 import { useRealtimeInvalidate } from "@/hooks/useRealtimeInvalidate";
 import type { Faculty } from "@/types/database";
-import { card, input } from "@/lib/ui";
+import {
+  card,
+  chipActive,
+  chipInactive,
+  input,
+  tableCell,
+  tableCellHead,
+  tableHeadRow,
+  tableRow,
+  tableWrap,
+} from "@/lib/ui";
 
 export function StudentsListClient({
   faculties,
@@ -43,11 +53,7 @@ export function StudentsListClient({
           <button
             type="button"
             onClick={() => setFacultyId(null)}
-            className={`rounded-full px-3 py-1 text-sm font-medium transition ${
-              facultyId === null
-                ? "bg-blue-600 text-white"
-                : "border border-slate-200 text-slate-600 hover:bg-slate-50"
-            }`}
+            className={facultyId === null ? chipActive : chipInactive}
           >
             ทุกคณะ
           </button>
@@ -56,11 +62,7 @@ export function StudentsListClient({
               key={faculty.id}
               type="button"
               onClick={() => setFacultyId(faculty.id)}
-              className={`rounded-full px-3 py-1 text-sm font-medium transition ${
-                facultyId === faculty.id
-                  ? "bg-blue-600 text-white"
-                  : "border border-slate-200 text-slate-600 hover:bg-slate-50"
-              }`}
+              className={facultyId === faculty.id ? chipActive : chipInactive}
             >
               {faculty.name}
             </button>
@@ -75,17 +77,17 @@ export function StudentsListClient({
         />
       </div>
 
-      <div className={`${card} overflow-x-auto`}>
+      <div className={tableWrap}>
         <table className="w-full min-w-[760px] border-collapse text-sm">
           <thead>
-            <tr className="border-b border-slate-100 text-left text-slate-500">
-              <th className="py-2 pr-4">รหัสนิสิต</th>
-              <th className="py-2 pr-4">ชื่อ-นามสกุล</th>
-              <th className="py-2 pr-4">ชื่อเล่น</th>
-              <th className="py-2 pr-4">คณะ</th>
-              <th className="py-2 pr-4">ปีที่เข้าเรียน</th>
-              <th className="py-2 pr-4">เข้าร่วม/ผ่านแล้ว</th>
-              <th className="py-2 pr-4">จัดการ</th>
+            <tr className={tableHeadRow}>
+              <th className={tableCellHead}>รหัสนิสิต</th>
+              <th className={tableCellHead}>ชื่อ-นามสกุล</th>
+              <th className={tableCellHead}>ชื่อเล่น</th>
+              <th className={tableCellHead}>คณะ</th>
+              <th className={tableCellHead}>ปีที่เข้าเรียน</th>
+              <th className={tableCellHead}>เข้าร่วม/ผ่านแล้ว</th>
+              <th className={tableCellHead}>จัดการ</th>
             </tr>
           </thead>
           <tbody>
@@ -95,23 +97,20 @@ export function StudentsListClient({
                 student.participations?.filter((p) => p.status === "attended")
                   .length ?? 0;
               return (
-                <tr
-                  key={student.id}
-                  className="border-b border-slate-50 text-slate-700"
-                >
-                  <td className="py-2 pr-4">{student.student_code}</td>
-                  <td className="py-2 pr-4 text-slate-900">
+                <tr key={student.id} className={tableRow}>
+                  <td className={tableCell}>{student.student_code}</td>
+                  <td className={`${tableCell} text-slate-900`}>
                     {student.full_name}
                   </td>
-                  <td className="py-2 pr-4">{student.nickname ?? "-"}</td>
-                  <td className="py-2 pr-4">
+                  <td className={tableCell}>{student.nickname ?? "-"}</td>
+                  <td className={tableCell}>
                     {student.faculties?.name ?? "-"}
                   </td>
-                  <td className="py-2 pr-4">{student.enrolled_year}</td>
-                  <td className="py-2 pr-4">
+                  <td className={tableCell}>{student.enrolled_year}</td>
+                  <td className={tableCell}>
                     {total}/{attended}
                   </td>
-                  <td className="py-2 pr-4">
+                  <td className={tableCell}>
                     <Link
                       href={`/admin/students/${student.id}`}
                       className="text-blue-600 underline"

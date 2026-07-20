@@ -6,10 +6,11 @@ export const TIER_LABEL: Record<CertificateTier, string> = {
   silver: "Silver",
 };
 
+// Matches the tier badges shown on /certificate-criteria — keep both in sync.
 export const TIER_STYLE: Record<CertificateTier, string> = {
-  platinum: "bg-slate-100 text-slate-700",
+  platinum: "bg-blue-50 text-blue-700",
   gold: "bg-amber-50 text-amber-700",
-  silver: "bg-zinc-100 text-zinc-600",
+  silver: "bg-slate-100 text-slate-600",
 };
 
 // เกณฑ์ตรงกับ /certificate-criteria: >80% Platinum, 70–80% Gold, 60–70% Silver, ต่ำกว่า 60% ไม่ได้ใบเซอร์

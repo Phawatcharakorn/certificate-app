@@ -4,6 +4,7 @@ import { useActionState, useState } from "react";
 import { createPeriod, closePeriod } from "./actions";
 import { AdminHeader } from "@/components/admin/AdminHeader";
 import { buttonPrimary, card, input, label } from "@/lib/ui";
+import { Modal } from "@/components/ui/Modal";
 import { TIER_LABEL } from "@/lib/certificate-tier";
 import type { AcademicPeriod } from "@/types/database";
 import type { ClosedPeriodSummary } from "./page";
@@ -54,8 +55,8 @@ function ClosePeriodButton({ period }: { period: AcademicPeriod }) {
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  if (!confirming) {
-    return (
+  return (
+    <>
       <button
         type="button"
         onClick={() => setConfirming(true)}
@@ -63,44 +64,48 @@ function ClosePeriodButton({ period }: { period: AcademicPeriod }) {
       >
         ปิดปีการศึกษา
       </button>
-    );
-  }
 
-  return (
-    <div className="flex flex-col gap-2 rounded-xl border border-red-200 bg-red-50/50 p-3">
-      <p className="text-sm text-red-700">
-        การปิดปีการศึกษาจะคำนวณและล็อกระดับใบเซอร์ของนิสิตทุกคนตามผลปัจจุบัน
-        ย้อนกลับไม่ได้ ยืนยันหรือไม่?
-      </p>
-      {error && <p className="text-sm text-red-600">{error}</p>}
-      <div className="flex gap-2">
-        <button
-          type="button"
-          disabled={pending}
-          onClick={async () => {
-            setPending(true);
-            setError(null);
-            try {
-              await closePeriod(period.id);
-            } catch (e) {
-              setError(e instanceof Error ? e.message : "เกิดข้อผิดพลาด");
-              setPending(false);
-            }
-          }}
-          className="rounded-xl bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50"
-        >
-          {pending ? "กำลังปิด..." : "ยืนยันปิดปีการศึกษา"}
-        </button>
-        <button
-          type="button"
-          disabled={pending}
-          onClick={() => setConfirming(false)}
-          className="rounded-xl border border-slate-200 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50"
-        >
-          ยกเลิก
-        </button>
-      </div>
-    </div>
+      <Modal
+        open={confirming}
+        onClose={() => !pending && setConfirming(false)}
+        title="ยืนยันปิดปีการศึกษา"
+      >
+        <p className="text-sm text-slate-600">
+          การปิดปีการศึกษาจะคำนวณและล็อกระดับใบเซอร์ของนิสิตทุกคนตามผลปัจจุบัน
+          ย้อนกลับไม่ได้ ยืนยันหรือไม่?
+        </p>
+        {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
+        <div className="mt-4 flex gap-2">
+          <button
+            type="button"
+            disabled={pending}
+            onClick={async () => {
+              setPending(true);
+              setError(null);
+              try {
+                await closePeriod(period.id);
+                setConfirming(false);
+              } catch (e) {
+                setError(e instanceof Error ? e.message : "เกิดข้อผิดพลาด");
+              } finally {
+                setPending(false);
+              }
+            }}
+            className="rounded-xl bg-red-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-red-700 disabled:opacity-50"
+          >
+            {pending ? "กำลังปิด..." : "ยืนยันปิดปีการศึกษา"}
+          </button>
+          <button
+            type="button"
+            disabled={pending}
+            onClick={() => setConfirming(false)}
+            className="rounded-xl border border-slate-200 px-4 py-2 text-sm text-slate-700 transition hover:bg-slate-50"
+          >
+            ยกเลิก
+          </button>
+        </div>
+      </Modal>
+    </>
   );
 }
 

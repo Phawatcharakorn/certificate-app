@@ -9,6 +9,7 @@ import {
 import { useRealtimeInvalidate } from "@/hooks/useRealtimeInvalidate";
 import type { Faculty } from "@/types/database";
 import { card } from "@/lib/ui";
+import { Badge, type BadgeTone } from "@/components/ui/Badge";
 import { EditStudentForm } from "./EditStudentForm";
 import { ParticipationRow } from "./ParticipationRow";
 
@@ -17,6 +18,13 @@ const REQUEST_STATUS_LABEL: Record<string, string> = {
   processing: "กำลังดำเนินการ",
   completed: "เสร็จสิ้น",
   rejected: "ถูกปฏิเสธ",
+};
+
+const REQUEST_STATUS_TONE: Record<string, BadgeTone> = {
+  pending: "warning",
+  processing: "processing",
+  completed: "success",
+  rejected: "danger",
 };
 
 export function StudentDetailClient({
@@ -90,9 +98,9 @@ export function StudentDetailClient({
               className="flex items-center justify-between rounded-xl border border-slate-100 p-3 text-sm"
             >
               <span className="text-slate-900">{r.period?.name}</span>
-              <span className="text-slate-500">
+              <Badge tone={REQUEST_STATUS_TONE[r.status] ?? "neutral"}>
                 {REQUEST_STATUS_LABEL[r.status] ?? r.status}
-              </span>
+              </Badge>
             </li>
           ))}
         </ul>

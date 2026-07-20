@@ -20,8 +20,9 @@ import {
   ProfileMenuLink,
 } from "@/components/layout/ProfileMenu";
 import type { StudentProfile } from "@/lib/queries/profile";
-import { card } from "@/lib/ui";
+import { card, tableCellHead, tableHeadRow, tableRow } from "@/lib/ui";
 import { TIER_LABEL, TIER_STYLE } from "@/lib/certificate-tier";
+import { Badge, TONE_STYLE, type BadgeTone } from "@/components/ui/Badge";
 import {
   ActivityIcon,
   BadgeIcon,
@@ -53,13 +54,13 @@ const STATUS_LABEL: Record<DisplayStatus, string> = {
   rejected: "ถูกปฏิเสธ",
 };
 
-const STATUS_STYLE: Record<DisplayStatus, string> = {
-  not_eligible: "bg-slate-100 text-slate-600",
-  ready: "bg-blue-50 text-blue-700",
-  pending: "bg-amber-50 text-amber-700",
-  processing: "bg-sky-50 text-sky-700",
-  completed: "bg-green-50 text-green-700",
-  rejected: "bg-red-50 text-red-700",
+const STATUS_TONE: Record<DisplayStatus, BadgeTone> = {
+  not_eligible: "neutral",
+  ready: "info",
+  pending: "warning",
+  processing: "processing",
+  completed: "success",
+  rejected: "danger",
 };
 
 const STATUS_ICON: Record<DisplayStatus, typeof CheckCircleIcon> = {
@@ -89,14 +90,10 @@ function formatThaiDate(iso: string | null | undefined) {
 }
 
 function StatusBadge({ status }: { status: DisplayStatus }) {
-  const Icon = STATUS_ICON[status];
   return (
-    <span
-      className={`inline-flex w-fit items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium ${STATUS_STYLE[status]}`}
-    >
-      <Icon width={13} height={13} strokeWidth={2.5} />
+    <Badge tone={STATUS_TONE[status]} icon={STATUS_ICON[status]}>
       {STATUS_LABEL[status]}
-    </span>
+    </Badge>
   );
 }
 
@@ -409,23 +406,20 @@ export function CertificatesClient({
               <div className="hidden overflow-x-auto md:block">
                 <table className="w-full border-collapse text-left text-sm">
                   <thead>
-                    <tr className="border-b border-slate-100 text-xs uppercase tracking-wide text-slate-400">
-                      <th className="px-3 py-2 font-medium">ปีการศึกษา</th>
-                      <th className="px-3 py-2 font-medium">ความคืบหน้า</th>
-                      <th className="px-3 py-2 font-medium">ระดับ</th>
-                      <th className="px-3 py-2 font-medium">สถานะคำร้อง</th>
-                      <th className="px-3 py-2 font-medium">อัปเดตล่าสุด</th>
-                      <th className="px-3 py-2 font-medium">Actions</th>
+                    <tr className={tableHeadRow}>
+                      <th className={`${tableCellHead} px-3`}>ปีการศึกษา</th>
+                      <th className={`${tableCellHead} px-3`}>ความคืบหน้า</th>
+                      <th className={`${tableCellHead} px-3`}>ระดับ</th>
+                      <th className={`${tableCellHead} px-3`}>สถานะคำร้อง</th>
+                      <th className={`${tableCellHead} px-3`}>อัปเดตล่าสุด</th>
+                      <th className={`${tableCellHead} px-3`}>Actions</th>
                     </tr>
                   </thead>
                   <tbody>
                     {history.map((item) => {
                       const status = getDisplayStatus(item);
                       return (
-                        <tr
-                          key={item.periodId}
-                          className="border-b border-slate-50 transition hover:bg-slate-50/70"
-                        >
+                        <tr key={item.periodId} className={tableRow}>
                           <td className="px-3 py-3">
                             <p className="font-medium text-slate-900">
                               {item.periodName}
@@ -552,7 +546,7 @@ export function CertificatesClient({
                   >
                     <div className="flex flex-col items-center">
                       <div
-                        className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${STATUS_STYLE[event.status]}`}
+                        className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${TONE_STYLE[STATUS_TONE[event.status]]}`}
                       >
                         <Icon width={15} height={15} strokeWidth={2.5} />
                       </div>

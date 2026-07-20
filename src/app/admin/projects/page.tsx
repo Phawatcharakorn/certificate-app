@@ -3,7 +3,14 @@ import { requireAdmin } from "@/lib/supabase/require-admin";
 import { CreateProjectForm } from "./CreateProjectForm";
 import type { Faculty } from "@/types/database";
 import { AdminHeader } from "@/components/admin/AdminHeader";
-import { card } from "@/lib/ui";
+import {
+  card,
+  tableCell,
+  tableCellHead,
+  tableHeadRow,
+  tableRow,
+  tableWrap,
+} from "@/lib/ui";
 
 interface ProjectRow {
   id: string;
@@ -63,17 +70,17 @@ export default async function AdminProjectsPage() {
           <h2 className="font-semibold text-slate-900">
             รายการโครงการทั้งหมด
           </h2>
-          <div className={`${card} overflow-x-auto`}>
+          <div className={tableWrap}>
             <table className="w-full min-w-[800px] border-collapse text-sm">
               <thead>
-                <tr className="border-b border-slate-100 text-left text-slate-500">
-                  <th className="py-2 pr-4">รหัส</th>
-                  <th className="py-2 pr-4">ชื่อโครงการ</th>
-                  <th className="py-2 pr-4">วันที่</th>
-                  <th className="py-2 pr-4">สถานที่</th>
-                  <th className="py-2 pr-4">คณะที่เข้าร่วมได้</th>
-                  <th className="py-2 pr-4">ที่นั่ง</th>
-                  <th className="py-2 pr-4">ผู้เข้าร่วม</th>
+                <tr className={tableHeadRow}>
+                  <th className={tableCellHead}>รหัส</th>
+                  <th className={tableCellHead}>ชื่อโครงการ</th>
+                  <th className={tableCellHead}>วันที่</th>
+                  <th className={tableCellHead}>สถานที่</th>
+                  <th className={tableCellHead}>คณะที่เข้าร่วมได้</th>
+                  <th className={tableCellHead}>ที่นั่ง</th>
+                  <th className={tableCellHead}>ผู้เข้าร่วม</th>
                 </tr>
               </thead>
               <tbody>
@@ -83,12 +90,9 @@ export default async function AdminProjectsPage() {
                     const isFull =
                       project.capacity !== null && joined >= project.capacity;
                     return (
-                      <tr
-                        key={project.id}
-                        className="border-b border-slate-50 text-slate-700"
-                      >
-                        <td className="py-2 pr-4">{project.code}</td>
-                        <td className="py-2 pr-4 text-slate-900">
+                      <tr key={project.id} className={tableRow}>
+                        <td className={tableCell}>{project.code}</td>
+                        <td className={`${tableCell} text-slate-900`}>
                           <div className="flex items-center gap-2">
                             {project.cover_image_url ? (
                               // eslint-disable-next-line @next/next/no-img-element
@@ -103,11 +107,11 @@ export default async function AdminProjectsPage() {
                             {project.name}
                           </div>
                         </td>
-                        <td className="py-2 pr-4">{project.event_date}</td>
-                        <td className="py-2 pr-4">
+                        <td className={tableCell}>{project.event_date}</td>
+                        <td className={tableCell}>
                           {project.location ?? "-"}
                         </td>
-                        <td className="py-2 pr-4">
+                        <td className={tableCell}>
                           {project.target_faculty_mode === "all"
                             ? "ทุกคณะ"
                             : project.project_faculties
@@ -115,7 +119,7 @@ export default async function AdminProjectsPage() {
                                 .filter(Boolean)
                                 .join(", ")}
                         </td>
-                        <td className="py-2 pr-4">
+                        <td className={tableCell}>
                           {project.capacity === null ? (
                             <span className="text-slate-400">ไม่จำกัด</span>
                           ) : (
@@ -131,7 +135,7 @@ export default async function AdminProjectsPage() {
                             </span>
                           )}
                         </td>
-                        <td className="py-2 pr-4">
+                        <td className={tableCell}>
                           <a
                             href={`/api/admin/export/projects/${project.id}/participants`}
                             className="text-blue-600 underline"
