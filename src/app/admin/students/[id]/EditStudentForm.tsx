@@ -108,7 +108,7 @@ export function EditStudentForm({
         disabled={pending}
         className={`${buttonPrimary} w-fit`}
       >
-        {pending ? "กำลังบันทึก..." : "บันทึกข้อมูล"}
+        {pending ? "กำลังบันทึก..." : "บันทึก"}
       </button>
     </form>
   );

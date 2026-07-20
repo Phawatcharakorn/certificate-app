@@ -144,7 +144,7 @@ export function CertificateTemplateForm({
       )}
 
       <button type="submit" disabled={pending} className={buttonPrimary}>
-        {pending ? "กำลังอัพโหลด..." : "บันทึก Template"}
+        {pending ? "กำลังบันทึก..." : "บันทึก"}
       </button>
     </form>
   );

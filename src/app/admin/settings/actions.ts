@@ -56,7 +56,7 @@ export async function createCertificateTemplate(
   }
 
   if (!name || !tier || !backgroundImage || backgroundImage.size === 0) {
-    return { error: "กรุณากรอกชื่อ template, เลือกระดับ และอัพโหลดพื้นหลัง" };
+    return { error: "กรุณากรอกชื่อ template, เลือกระดับ และอัปโหลดพื้นหลัง" };
   }
 
   const filePath = `${crypto.randomUUID()}-${backgroundImage.name}`;
