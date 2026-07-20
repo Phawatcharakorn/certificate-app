@@ -12,13 +12,7 @@ import {
 } from "@/lib/queries/certificates";
 import { useRealtimeInvalidate } from "@/hooks/useRealtimeInvalidate";
 import { requestCertificate } from "./actions";
-import { signOut } from "@/app/actions/auth";
-import { Header, HeaderNavLink } from "@/components/layout/Header";
-import {
-  ProfileMenu,
-  ProfileMenuButton,
-  ProfileMenuLink,
-} from "@/components/layout/ProfileMenu";
+import { StudentHeader } from "@/components/layout/StudentHeader";
 import type { StudentProfile } from "@/lib/queries/profile";
 import { card, tableCellHead, tableHeadRow, tableRow } from "@/lib/ui";
 import { TIER_LABEL, TIER_STYLE } from "@/lib/certificate-tier";
@@ -266,32 +260,11 @@ export function CertificatesClient({
 
   return (
     <>
-      <Header
-        homeHref="/dashboard"
-        nav={
-          <>
-            <HeaderNavLink href="/dashboard">หน้าหลัก</HeaderNavLink>
-            <HeaderNavLink href="/projects">โครงการ</HeaderNavLink>
-            <HeaderNavLink href="/certificates" active>
-              สถานะ Certificate
-            </HeaderNavLink>
-          </>
-        }
-        right={
-          <ProfileMenu
-            name={profile.fullName ?? profile.nickname ?? "นิสิต"}
-            subtitle={
-              profile.studentCode ? `รหัสนิสิต ${profile.studentCode}` : undefined
-            }
-          >
-            <ProfileMenuLink href="/dashboard">กลับหน้าหลัก</ProfileMenuLink>
-            <div className="my-1 border-t border-slate-100" />
-            <form action={signOut}>
-              <ProfileMenuButton type="submit" danger>
-                ออกจากระบบ
-              </ProfileMenuButton>
-            </form>
-          </ProfileMenu>
+      <StudentHeader
+        active="certificates"
+        name={profile.fullName ?? profile.nickname ?? "นิสิต"}
+        subtitle={
+          profile.studentCode ? `รหัสนิสิต ${profile.studentCode}` : undefined
         }
       />
       <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-6 p-4 sm:p-6 lg:p-8">

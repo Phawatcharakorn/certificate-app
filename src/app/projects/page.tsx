@@ -1,41 +1,39 @@
-import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import { Header, HeaderNavLink } from "@/components/layout/Header";
+import { PublicHeader } from "@/components/layout/PublicHeader";
+import { StudentHeader } from "@/components/layout/StudentHeader";
 import { ProjectCard } from "@/components/dashboard/ProjectCard";
 import { fetchPublicProjects } from "@/lib/queries/public-projects";
-import { buttonHeaderCta } from "@/lib/ui";
+import { fetchStudentProfile } from "@/lib/queries/profile";
 
 export default async function ProjectsPage() {
   const supabase = await createClient();
-  const projects = await fetchPublicProjects(supabase);
+
+  const [projects, { data: { user } }] = await Promise.all([
+    fetchPublicProjects(supabase),
+    supabase.auth.getUser(),
+  ]);
+
+  let studentProfile = null;
+  if (user) {
+    const profile = await fetchStudentProfile(supabase, user.id);
+    if (profile.fullName || profile.studentCode) studentProfile = profile;
+  }
 
   return (
     <>
-      <Header
-        nav={
-          <>
-            <HeaderNavLink href="/projects" active>
-              โครงการที่เปิดรับ
-            </HeaderNavLink>
-            <HeaderNavLink href="/certificate-criteria">
-              หลักเกณฑ์ Certificate
-            </HeaderNavLink>
-          </>
-        }
-        right={
-          <>
-            <Link
-              href="/login"
-              className="hidden text-sm font-medium text-teal-50/85 hover:text-white sm:inline"
-            >
-              เข้าสู่ระบบนิสิต
-            </Link>
-            <Link href="/register" className={buttonHeaderCta}>
-              สมัครสมาชิก
-            </Link>
-          </>
-        }
-      />
+      {studentProfile ? (
+        <StudentHeader
+          active="projects"
+          name={studentProfile.fullName ?? studentProfile.nickname ?? "นิสิต"}
+          subtitle={
+            studentProfile.studentCode
+              ? `รหัสนิสิต ${studentProfile.studentCode}`
+              : undefined
+          }
+        />
+      ) : (
+        <PublicHeader active="projects" />
+      )}
       <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-6 p-6 sm:p-8">
         <h1 className="text-xl font-semibold text-slate-900">
           โครงการที่เปิดทั้งหมด

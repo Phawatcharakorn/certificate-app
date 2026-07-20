@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { Header } from "@/components/layout/Header";
+import { StudentHeader } from "@/components/layout/StudentHeader";
 import { buttonPrimary, buttonSecondary } from "@/lib/ui";
 import {
   bannerGradient,
@@ -52,6 +53,8 @@ export default async function ProjectDetailPage({
 
   let isStudent = false;
   let studentFacultyId: string | null = null;
+  let studentName = "";
+  let studentSubtitle: string | undefined;
   let participation = null as Awaited<
     ReturnType<typeof fetchStudentParticipationForProject>
   >;
@@ -59,13 +62,17 @@ export default async function ProjectDetailPage({
   if (user) {
     const { data: student } = await supabase
       .from("students")
-      .select("faculty_id")
+      .select("faculty_id, full_name, nickname, student_code")
       .eq("id", user.id)
       .maybeSingle();
 
     if (student) {
       isStudent = true;
       studentFacultyId = student.faculty_id as string;
+      studentName = student.nickname ?? student.full_name;
+      studentSubtitle = student.student_code
+        ? `รหัสนิสิต ${student.student_code}`
+        : undefined;
       participation = await fetchStudentParticipationForProject(
         supabase,
         user.id,
@@ -88,7 +95,11 @@ export default async function ProjectDetailPage({
 
   return (
     <>
-      <Header homeHref={isStudent ? "/dashboard" : "/"} />
+      {isStudent ? (
+        <StudentHeader active="projects" name={studentName} subtitle={studentSubtitle} />
+      ) : (
+        <Header homeHref="/" />
+      )}
       <main className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-6 p-4 sm:p-6 lg:p-8">
         <nav
           aria-label="breadcrumb"

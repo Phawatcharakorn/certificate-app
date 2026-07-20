@@ -7,14 +7,8 @@ import { createClient } from "@/lib/supabase/client";
 import { fetchDashboardData, type DashboardData } from "@/lib/queries/dashboard";
 import type { CurrentPeriodProgress } from "@/lib/queries/certificates";
 import { useRealtimeInvalidate } from "@/hooks/useRealtimeInvalidate";
-import { signOut } from "@/app/actions/auth";
-import { Header, HeaderNavLink } from "@/components/layout/Header";
+import { StudentHeader } from "@/components/layout/StudentHeader";
 import { Footer } from "@/components/layout/Footer";
-import {
-  ProfileMenu,
-  ProfileMenuButton,
-  ProfileMenuLink,
-} from "@/components/layout/ProfileMenu";
 import { cardGlass } from "@/lib/ui";
 import { ProjectCard, formatThaiDate } from "@/components/dashboard/ProjectCard";
 import {
@@ -90,33 +84,10 @@ export function DashboardClient({
 
   return (
     <>
-      <Header
-        homeHref="/dashboard"
-        nav={
-          <>
-            <HeaderNavLink href="/dashboard" active>
-              หน้าหลัก
-            </HeaderNavLink>
-            <HeaderNavLink href="/projects">โครงการ</HeaderNavLink>
-            <HeaderNavLink href="/certificates">สถานะ Certificate</HeaderNavLink>
-          </>
-        }
-        right={
-          <ProfileMenu
-            name={fullName ?? displayName}
-            subtitle={studentCode ? `รหัสนิสิต ${studentCode}` : undefined}
-          >
-            <ProfileMenuLink href="/certificates">
-              สถานะใบ Certificate
-            </ProfileMenuLink>
-            <div className="my-1 border-t border-slate-100" />
-            <form action={signOut}>
-              <ProfileMenuButton type="submit" danger>
-                ออกจากระบบ
-              </ProfileMenuButton>
-            </form>
-          </ProfileMenu>
-        }
+      <StudentHeader
+        active="dashboard"
+        name={fullName ?? displayName}
+        subtitle={studentCode ? `รหัสนิสิต ${studentCode}` : undefined}
       />
       <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-6 p-6 sm:p-8">
         <section
