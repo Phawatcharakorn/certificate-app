@@ -1,13 +1,21 @@
+import { createClient } from "@/lib/supabase/server";
+import { checkIsAdmin } from "@/lib/supabase/require-admin";
 import { PublicHeader } from "@/components/layout/PublicHeader";
 import { Footer } from "@/components/layout/Footer";
 import { card, headingLg, smallText } from "@/lib/ui";
 import { ORG_INFO } from "@/lib/site-config";
 import { MailIcon, MapPinIcon, PhoneIcon } from "@/components/icons";
 
-export default function ContactPage() {
+export default async function ContactPage() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const isAdmin = await checkIsAdmin(supabase, user?.id);
+
   return (
     <>
-      <PublicHeader />
+      <PublicHeader isAdmin={isAdmin} />
       <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-6 p-6 sm:p-8">
         <div className={`${card} flex flex-col gap-2 text-center`}>
           <h1 className={`${headingLg} text-slate-900`}>ติดต่อเรา</h1>

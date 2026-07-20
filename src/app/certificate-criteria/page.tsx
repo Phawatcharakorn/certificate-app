@@ -1,6 +1,8 @@
 import Link from "next/link";
-import { Header, HeaderNavLink } from "@/components/layout/Header";
-import { card, buttonPrimary, buttonSecondary, buttonHeaderCta } from "@/lib/ui";
+import { createClient } from "@/lib/supabase/server";
+import { checkIsAdmin } from "@/lib/supabase/require-admin";
+import { PublicHeader } from "@/components/layout/PublicHeader";
+import { card, buttonPrimary, buttonSecondary } from "@/lib/ui";
 
 const ELIGIBILITY = [
   {
@@ -59,32 +61,16 @@ const NOTES = [
   "ผลการพิจารณาของศูนย์พัฒนานิสิตสู่ความเป็นเลิศ (SDEC) ถือเป็นที่สิ้นสุด",
 ];
 
-export default function CertificateCriteriaPage() {
+export default async function CertificateCriteriaPage() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const isAdmin = await checkIsAdmin(supabase, user?.id);
+
   return (
     <>
-      <Header
-        nav={
-          <>
-            <HeaderNavLink href="/projects">โครงการที่เปิดรับ</HeaderNavLink>
-            <HeaderNavLink href="/certificate-criteria" active>
-              หลักเกณฑ์ Certificate
-            </HeaderNavLink>
-          </>
-        }
-        right={
-          <>
-            <Link
-              href="/login"
-              className="hidden text-sm font-medium text-teal-50/85 hover:text-white sm:inline"
-            >
-              เข้าสู่ระบบนิสิต
-            </Link>
-            <Link href="/register" className={buttonHeaderCta}>
-              สมัครสมาชิก
-            </Link>
-          </>
-        }
-      />
+      <PublicHeader active="criteria" isAdmin={isAdmin} />
       <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-8 p-6 sm:p-8">
         <div className={`${card} anim-pop-in flex flex-col gap-3 text-center`}>
           <h1 className="text-2xl font-semibold text-slate-900">

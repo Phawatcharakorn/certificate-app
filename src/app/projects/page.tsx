@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { checkIsAdmin } from "@/lib/supabase/require-admin";
 import { PublicHeader } from "@/components/layout/PublicHeader";
 import { StudentHeader } from "@/components/layout/StudentHeader";
 import { ProjectCard } from "@/components/dashboard/ProjectCard";
@@ -14,9 +15,14 @@ export default async function ProjectsPage() {
   ]);
 
   let studentProfile = null;
+  let isAdmin = false;
   if (user) {
-    const profile = await fetchStudentProfile(supabase, user.id);
+    const [profile, adminCheck] = await Promise.all([
+      fetchStudentProfile(supabase, user.id),
+      checkIsAdmin(supabase, user.id),
+    ]);
     if (profile.fullName || profile.studentCode) studentProfile = profile;
+    isAdmin = adminCheck;
   }
 
   return (
@@ -32,7 +38,7 @@ export default async function ProjectsPage() {
           }
         />
       ) : (
-        <PublicHeader active="projects" />
+        <PublicHeader active="projects" isAdmin={isAdmin} />
       )}
       <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-6 p-6 sm:p-8">
         <h1 className="text-xl font-semibold text-slate-900">

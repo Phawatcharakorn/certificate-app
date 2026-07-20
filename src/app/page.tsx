@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import { checkIsAdmin } from "@/lib/supabase/require-admin";
 import { PublicHeader } from "@/components/layout/PublicHeader";
 import { Footer } from "@/components/layout/Footer";
 import {
@@ -45,11 +46,7 @@ export default async function Home() {
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  const isAdmin = user
-    ? !!(
-        await supabase.from("admins").select("id").eq("id", user.id).maybeSingle()
-      ).data
-    : false;
+  const isAdmin = await checkIsAdmin(supabase, user?.id);
 
   const [{ data: period }, { count: projectCount }, { count: closedPeriodCount }, { data: faculties }, upcomingProjects] =
     await Promise.all([
@@ -72,7 +69,7 @@ export default async function Home() {
 
   return (
     <>
-      <PublicHeader />
+      <PublicHeader isAdmin={isAdmin} />
       <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-10 p-6 sm:p-8">
         <div
           className="anim-pop-in relative overflow-hidden rounded-3xl p-8 text-center text-white shadow-[0_24px_60px_-24px_rgba(13,60,86,0.55)] sm:p-12"

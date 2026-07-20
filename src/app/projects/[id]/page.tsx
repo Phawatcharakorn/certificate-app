@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { Header } from "@/components/layout/Header";
+import { checkIsAdmin } from "@/lib/supabase/require-admin";
+import { PublicHeader } from "@/components/layout/PublicHeader";
 import { StudentHeader } from "@/components/layout/StudentHeader";
 import { buttonPrimary, buttonSecondary } from "@/lib/ui";
 import {
@@ -59,6 +60,8 @@ export default async function ProjectDetailPage({
     ReturnType<typeof fetchStudentParticipationForProject>
   >;
 
+  let isAdmin = false;
+
   if (user) {
     const { data: student } = await supabase
       .from("students")
@@ -78,6 +81,8 @@ export default async function ProjectDetailPage({
         user.id,
         id,
       );
+    } else {
+      isAdmin = await checkIsAdmin(supabase, user.id);
     }
   }
 
@@ -98,7 +103,7 @@ export default async function ProjectDetailPage({
       {isStudent ? (
         <StudentHeader active="projects" name={studentName} subtitle={studentSubtitle} />
       ) : (
-        <Header homeHref="/" />
+        <PublicHeader isAdmin={isAdmin} />
       )}
       <main className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-6 p-4 sm:p-6 lg:p-8">
         <nav
